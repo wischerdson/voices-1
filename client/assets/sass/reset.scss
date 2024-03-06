@@ -1,0 +1,32 @@
+*, *::before, *::after {
+	background-position: center;
+	background-size: cover;
+	background-repeat: no-repeat;
+	-webkit-overflow-scrolling: touch;
+}
+
+html {
+	line-height: 1;
+	-webkit-text-size-adjust: 100%;
+	min-height: 100%;
+}
+
+html:focus-within {
+	scroll-behavior: smooth;
+}
+
+body {
+	cursor: default;
+	overflow-x: hidden;
+	text-rendering: optimizeSpeed;
+}
+
+img, picture, video {
+	max-width: 100%;
+	display: block;
+	user-select: none;
+}
+
+img, picture {
+	pointer-events: none;
+}
