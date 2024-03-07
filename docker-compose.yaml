@@ -10,6 +10,8 @@ services:
     user: $USER_ID:$GROUP_ID
     depends_on:
       - redis
+    ports:
+      - 1999:1999
 
   # queue:
   #   build: ./.docker/php

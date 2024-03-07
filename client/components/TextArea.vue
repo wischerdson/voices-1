@@ -3,6 +3,7 @@
 		v-uid
 		ref="$textarea"
 		v-bind="attrs"
+		v-model="model"
 	></textarea>
 </template>
 
@@ -11,6 +12,8 @@
 import { useAttrs, onMounted, onUnmounted, ref } from '#imports'
 
 const attrs = useAttrs()
+
+const model = defineModel<string>()
 
 const props = withDefaults(defineProps<{
 	modelValue?: string

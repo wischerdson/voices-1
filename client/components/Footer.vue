@@ -8,6 +8,9 @@
 				class="w-full resize-none max-h-72 bg-gray-900 px-5 py-2.5 leading-normal h-[46px] rounded-lg"
 				:allow-shrink="true"
 				placeholder="Сообщение..."
+				@keydown.enter.prevent="sendMessage"
+				@keydown.shi
+				v-model="message"
 			></TextArea>
 		</div>
 	</div>
@@ -24,6 +27,11 @@ const hasScroll = ref(false)
 const { arrivedState } = useScroll($document)
 
 const onResize = () => hasScroll.value = document.documentElement.scrollHeight > document.documentElement.clientHeight
+const message = ref('')
+
+const sendMessage = () => {
+	console.log(message.value)
+}
 
 onMounted(() => {
 	$document.value = document
