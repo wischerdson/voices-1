@@ -1,5 +1,5 @@
 <template>
-	<div class="min-h-screen relative pt-14 pb-24">
+	<div class="min-h-screen flex flex-col justify-end relative pt-14 pb-24 font-mono">
 		<ScreenSize />
 		<TheHeader />
 		<slot></slot>

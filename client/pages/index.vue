@@ -1,15 +1,15 @@
 <template>
-	<div class="max-w-3xl mx-auto font-mono">
-		<div class="py-6 pr-10 flex flex-col justify-end items-start space-y-4">
+	<div class="h-full max-w-3xl mx-auto">
+		<div class="py-6 pr-10 flex flex-col items-start space-y-4">
 			<TheMessage date="11 апреля, 15:14" message="Lorem, ipsum dolor sit" />
 			<TheMessage date="12 апреля, 15:14" message="Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rerum saepe possimus esse ratione voluptatem exercitationem voluptatum nisi quod, eum eius dicta ducimus voluptate amet ipsa temporibus totam, corporis iste?" />
+			<!-- <TheMessage date="12 апреля, 15:14" message="Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rerum saepe possimus esse ratione voluptatem exercitationem voluptatum nisi quod, eum eius dicta ducimus voluptate amet ipsa temporibus totam, corporis iste?" />
 			<TheMessage date="12 апреля, 15:14" message="Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rerum saepe possimus esse ratione voluptatem exercitationem voluptatum nisi quod, eum eius dicta ducimus voluptate amet ipsa temporibus totam, corporis iste?" />
 			<TheMessage date="12 апреля, 15:14" message="Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rerum saepe possimus esse ratione voluptatem exercitationem voluptatum nisi quod, eum eius dicta ducimus voluptate amet ipsa temporibus totam, corporis iste?" />
 			<TheMessage date="12 апреля, 15:14" message="Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rerum saepe possimus esse ratione voluptatem exercitationem voluptatum nisi quod, eum eius dicta ducimus voluptate amet ipsa temporibus totam, corporis iste?" />
 			<TheMessage date="12 апреля, 15:14" message="Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rerum saepe possimus esse ratione voluptatem exercitationem voluptatum nisi quod, eum eius dicta ducimus voluptate amet ipsa temporibus totam, corporis iste?" />
 			<TheMessage date="12 апреля, 15:14" message="Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rerum saepe possimus esse ratione voluptatem exercitationem voluptatum nisi quod, eum eius dicta ducimus voluptate amet ipsa temporibus totam, corporis iste?" />
-			<TheMessage date="12 апреля, 15:14" message="Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rerum saepe possimus esse ratione voluptatem exercitationem voluptatum nisi quod, eum eius dicta ducimus voluptate amet ipsa temporibus totam, corporis iste?" />
-			<TheMessage date="12 апреля, 15:14" message="Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rerum saepe possimus esse ratione voluptatem exercitationem voluptatum nisi quod, eum eius dicta ducimus voluptate amet ipsa temporibus totam, corporis iste?" />
+			<TheMessage date="12 апреля, 15:14" message="Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ad rerum saepe possimus esse ratione voluptatem exercitationem voluptatum nisi quod, eum eius dicta ducimus voluptate amet ipsa temporibus totam, corporis iste?" /> -->
 		</div>
 	</div>
 </template>
