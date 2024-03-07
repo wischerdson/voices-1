@@ -27,7 +27,8 @@ export default defineNuxtConfig({
 
 	tailwindcss: {
 		cssPath: '~/assets/sass/tailwind.scss',
-		exposeConfig: false
+		exposeConfig: false,
+		injectPosition: 'last'
 	},
 
 	features: {
