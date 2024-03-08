@@ -6,7 +6,9 @@
 				<div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
 				<div class="text-sm">
 					<span class="text-gray-600">Онлайн: </span>
-					<span>5</span>
+					<span v-if="wsStore.data && wsStore.data.type === 'online'">
+						<span>{{ wsStore.data.payload.online }}</span>
+					</span>
 				</div>
 			</div>
 		</div>
@@ -21,7 +23,9 @@
 import TheLogo from '~/components/Logo.vue'
 import { onMounted, ref } from 'vue'
 import { useScroll } from '@vueuse/core'
+import { useWsServerDataStore } from '~/store/ws-server-data'
 
+const wsStore = useWsServerDataStore()
 const $document = ref<Document>()
 
 const { arrivedState } = useScroll($document)

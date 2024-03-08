@@ -11,7 +11,7 @@ export default defineNuxtConfig({
 		buildAssetsDir: process.env.NODE_ENV === 'production' ? '/assets/' : void 0,
 	},
 
-	modules: ['@nuxtjs/tailwindcss', 'nuxt-icon'],
+	modules: ['@nuxtjs/tailwindcss', 'nuxt-icon', '@pinia/nuxt'],
 
 	imports: {
 		autoImport: false
@@ -20,7 +20,8 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		public: {
 			storageBaseUrl: process.env.STORAGE_URL,
-			apiBaseUrl: process.env.CLIENT_API_URL
+			apiBaseUrl: process.env.CLIENT_API_URL,
+			wsServerUrl: process.env.WS_SERVER_URL
 		},
 		apiBaseUrl: process.env.SERVER_API_URL
 	},

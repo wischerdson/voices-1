@@ -10,14 +10,24 @@ services:
     user: $USER_ID:$GROUP_ID
     depends_on:
       - redis
-    ports:
-      - 1999:1999
 
   # queue:
   #   build: ./.docker/php
   #   volumes:
   #     - .:/app
   #   working_dir: /app
+
+  ws:
+    build: ./.docker/php
+    volumes:
+      - .:/app
+    working_dir: /app
+    user: $USER_ID:$GROUP_ID
+    depends_on:
+      - redis
+    ports:
+      - 2007:2007
+    command: sh -c "php artisan ws:listen"
 
   nginx:
     image: nginx:alpine

@@ -15,7 +15,7 @@ class ListenWS extends Command
 	 *
 	 * @var string
 	 */
-	protected $signature = 'listen-ws';
+	protected $signature = 'ws:listen';
 
 	/**
 	 * Execute the console command.
@@ -24,7 +24,20 @@ class ListenWS extends Command
 	{
 		$ws = new WsServer(new Online());
 
-		$server = IoServer::factory(new Online(), 1999);
+		$server = IoServer::factory(new HttpServer($ws), 2007);
+
+		$sigHandler = function ($sig) use ($server) {
+			$server->loop->stop();
+		};
+
+		$this->trap(SIGTERM, $sigHandler);
+		$this->trap(SIGINT, $sigHandler);
+		$this->trap(SIGHUP, $sigHandler);
+
+		echo 'WS server listening 2007 port';
+
 		$server->run();
+
+		return self::SUCCESS;
 	}
 }

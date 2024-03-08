@@ -3,6 +3,7 @@
 namespace App\Ratchet;
 
 use Exception;
+use Illuminate\Support\Facades\Redis;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
 
@@ -10,23 +11,38 @@ class Online implements MessageComponentInterface
 {
 	protected $clients;
 
-	public function __construct() {
+	public function __construct()
+	{
 		$this->clients = new \SplObjectStorage;
 	}
 
-	public function onOpen(ConnectionInterface $conn) {
-		// Store the new connection to send messages to later
+	public function onOpen(ConnectionInterface $conn)
+	{
 		$this->clients->attach($conn);
 
-		dump($conn);
+		$payload = [
+			'online' => count($this->clients)
+		];
+		$json = ['type' => 'online', 'payload' => $payload];
 
-		echo "New connection! ({$conn->resourceId})\n";
+		foreach ($this->clients as $client) {
+			$client->send(json_encode($json, JSON_THROW_ON_ERROR));
+		}
 	}
 
 	public function onMessage(ConnectionInterface $from, $msg) {
-		$numRecv = count($this->clients) - 1;
-		echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
-			, $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
+		$jsonMsg = json_decode($msg);
+
+		$payload = [
+			'online' => count($this->clients)
+		];
+		$json = ['type' => 'online', 'payload' => $payload];
+
+		if ($jsonMsg->action === 'get_online') {
+			$from->send(json_encode($json, JSON_THROW_ON_ERROR));
+
+			return;
+		}
 
 		foreach ($this->clients as $client) {
 			if ($from !== $client) {
@@ -36,10 +52,16 @@ class Online implements MessageComponentInterface
 	}
 
 	public function onClose(ConnectionInterface $conn) {
-		// The connection is closed, remove it, as we can no longer send it messages
 		$this->clients->detach($conn);
 
-		echo "Connection {$conn->resourceId} has disconnected\n";
+		$payload = [
+			'online' => count($this->clients)
+		];
+		$json = ['type' => 'online', 'payload' => $payload];
+
+		foreach ($this->clients as $client) {
+			$client->send(json_encode($json, JSON_THROW_ON_ERROR));
+		}
 	}
 
 	public function onError(ConnectionInterface $conn, Exception $e) {

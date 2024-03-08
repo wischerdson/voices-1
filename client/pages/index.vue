@@ -16,11 +16,16 @@
 
 <script setup lang="ts">
 
-import { useHead } from '#imports'
+import { useHead, onUnmounted } from '#imports'
+import { useWsConnection } from '~/composables/use-ws-connection'
 
 import TheMessage from '~/components/Message.vue'
 
 useHead({ title: 'Чат - Voices of the Void' })
+
+const closeWsConnection = process.client ? useWsConnection() : () => void
+
+onUnmounted(() => closeWsConnection())
 
 </script>
 

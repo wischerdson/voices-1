@@ -10,6 +10,7 @@
 		"postinstall": "nuxt prepare client"
 	},
 	"dependencies": {
+		"@pinia/nuxt": "^0.5.1",
 		"@vueuse/core": "^10.9.0",
 		"nuxt": "^3.10.3",
 		"vue": "^3.4.19",
