@@ -1,0 +1,11 @@
+{
+	"debug": false,
+	"port": 2007,
+	"appManager.array.apps": [
+		{
+			"id": "app-id",
+			"key": "app-key",
+			"secret": ""
+		}
+	]
+}

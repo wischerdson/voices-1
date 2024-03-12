@@ -6,9 +6,9 @@
 				<div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
 				<div class="text-sm">
 					<span class="text-gray-600">Онлайн: </span>
-					<span v-if="wsStore.data && wsStore.data.type === 'online'">
+					<!-- <span v-if="wsStore.data && wsStore.data.type === 'online'">
 						<span>{{ wsStore.data.payload.online }}</span>
-					</span>
+					</span> -->
 				</div>
 			</div>
 		</div>
@@ -23,14 +23,33 @@
 import TheLogo from '~/components/Logo.vue'
 import { onMounted, ref } from 'vue'
 import { useScroll } from '@vueuse/core'
-import { useWsServerDataStore } from '~/store/ws-server-data'
+import { useNuxtApp } from '#app'
+// import { useWsServerDataStore } from '~/store/ws-server-data'
 
-const wsStore = useWsServerDataStore()
+// const wsStore = useWsServerDataStore()
+
 const $document = ref<Document>()
 
 const { arrivedState } = useScroll($document)
 
-onMounted(() => $document.value = document)
+onMounted(() => {
+	$document.value = document
+
+	// $echo
+	// 	.channel('online')
+	// 	.listen('ConnectionsCountChanged', function (e) {
+	// 		console.log(e)
+	// 	})
+		// .join('online')
+		// // .join('online')
+		// // .join('online')
+		// // .here((users) => {
+		// // 	console.log(users)
+		// // })
+		// .joining(() => {
+		// 	console.log('Joining')
+		// })
+})
 
 </script>
 

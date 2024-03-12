@@ -7,7 +7,7 @@
 			<TextArea
 				class="w-full resize-none max-h-72 bg-gray-900 px-5 py-2.5 leading-normal h-[46px] rounded-lg"
 				:allow-shrink="true"
-				placeholder="Сообщение..."
+				placeholder=""
 				@keydown.enter.prevent="sendMessage"
 				@keydown.shi
 				v-model="message"
@@ -21,20 +21,31 @@
 import TextArea from '~/components/TextArea.vue'
 import { onMounted, ref, onUnmounted } from 'vue'
 import { useScroll } from '@vueuse/core'
+import { apiBaseUrl } from '~/utils/helpers'
 
 const $document = ref<Document>()
 const hasScroll = ref(false)
-const { arrivedState } = useScroll($document)
+let { arrivedState } = useScroll($document)
 
-const onResize = () => hasScroll.value = document.documentElement.scrollHeight > document.documentElement.clientHeight
+const onResize = () => {
+	hasScroll.value = document.documentElement.scrollHeight > document.documentElement.clientHeight
+}
 const message = ref('')
 
 const sendMessage = () => {
-	console.log(message.value)
+	$fetch('/messages', {
+		method: 'POST',
+		baseURL: apiBaseUrl(),
+		body: {
+			message_text: message.value
+		}
+	})
 }
 
 onMounted(() => {
 	$document.value = document
+
+	onResize()
 
 	window.addEventListener('resize', onResize)
 })
