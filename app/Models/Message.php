@@ -17,4 +17,8 @@ class Message extends Model
 	const UPDATED_AT = null;
 
 	protected $table = 'messages';
+
+	protected $casts = [
+		'created_at' => 'timestamp',
+	];
 }
