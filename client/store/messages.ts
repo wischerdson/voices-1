@@ -9,9 +9,36 @@ export type Message = {
 	created_at: number
 }
 
+let messages: number[] | undefined = void 0
+
+const writeMyMessagesIds = () => {
+	window.localStorage.setItem('my-messages', JSON.stringify(messages))
+}
+
+const addMyMessageId = (id: number) => {
+	messages?.push(id)
+	writeMyMessagesIds()
+}
+
+const getMyMessagesIds = (): number[] => {
+	if (messages !== undefined) {
+		return messages
+	}
+
+	let value = window.localStorage.getItem('my-messages')
+
+	if (!value) {
+		writeMyMessagesIds()
+	}
+
+	messages = JSON.parse(value || '[]')
+
+	return getMyMessagesIds()
+}
+
 export const useMessagesStore = defineStore('messages', () => {
 	const messages = ref<Message[]>([])
-	const limit = 80
+	const limit = 70
 	const offset = ref(0)
 	const thatsAll = ref(false)
 	const { $echo } = useNuxtApp()
@@ -27,34 +54,30 @@ export const useMessagesStore = defineStore('messages', () => {
 			return
 		}
 
-		offset.value += limit
-
 		return useGetReq<Message[]>('/messages', {
 			query: { limit, offset: offset.value }
 		}).send().then(_messages => {
+			offset.value += limit
 			beforeStateUpdating()
 			_messages.forEach(m => messages.value.push(m))
 			thatsAll.value = _messages.length < limit
-		}).catch(e => {
-			offset.value -= limit
-
-			throw e
 		})
 	}
 
 	const fetch = () => {
-		const _limit = 20
+		const _limit = 15
 		offset.value = _limit
 
 		return useGetFetch<Message[]>('/messages', 'messages', {
-			query: { limit, offset: 0 }
+			query: { limit: _limit, offset: 0 }
 		}).send().then(({ data: _messages }) => {
 			messages.value = _messages.value as Message[]
 		})
 	}
 
 	const send = (message_text: string) => {
-		return usePostReq('/messages', { message_text }).send()
+		return usePostReq<Message>('/messages', { message_text }).send()
+			.then(({ id }) => addMyMessageId(id))
 	}
 
 	const groupedMessages = computed(() => {

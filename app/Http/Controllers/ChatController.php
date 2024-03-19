@@ -29,5 +29,7 @@ class ChatController extends Controller
 		$message->save();
 
 		MessageSent::dispatch($message);
+
+		return $message;
 	}
 }
