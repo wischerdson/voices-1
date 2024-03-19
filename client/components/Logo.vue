@@ -1,11 +1,5 @@
 <template>
 	<div class="font-mono text-2xl text-gray-500">
-		Voices of the Void
+		<span>Voices of the Void</span>
 	</div>
 </template>
-
-<script setup lang="ts">
-
-
-
-</script>

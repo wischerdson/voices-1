@@ -19,28 +19,12 @@
 
 import TheMessage from '~/components/Message.vue'
 import { timestampToDate } from '~/utils/date'
-import { onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useMessagesStore } from '~/store/messages'
 
 const writing = ref(false)
 const messagesStore = useMessagesStore()
-const groupedMessages = messagesStore.groupedMessages
-// const { $echo } = useNuxtApp()
-
-onMounted(() => {
-	// window.scrollTo(0, document.body.scrollHeight)
-
-	// $echo
-	// 	.channel('messages')
-	// 	.listen('MessageSent', ({ message }: { message: Message }) => {
-	// 		messages.value.push(message)
-
-	// 		nextTick(() => {
-	// 			window.scrollTo(0, document.body.scrollHeight)
-	// 		})
-
-	// 	})
-})
+const groupedMessages = computed(() => messagesStore.groupedMessages)
 
 </script>
 

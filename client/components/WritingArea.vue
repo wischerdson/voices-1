@@ -6,22 +6,23 @@
 			@keydown="handleKeyDown"
 			v-model="message"
 		></TextArea>
-		<TheClickable class="bg-gray-900 w-[46px] h-[46px] rounded-full">
-			<icon class="ml-1" name="material-symbols:send-rounded" size="26px" />
+		<TheClickable class="bg-gray-900 w-[46px] h-[46px] rounded-full" @click="sendMessage" :style="{ opacity: message ? '' : '.7' }">
+			<icon name="svg-spinners:90-ring-with-bg" :size="`26px`" v-if="sending" />
+			<icon class="ml-1" name="material-symbols:send-rounded" size="26px" v-else />
 		</TheClickable>
 	</div>
 </template>
 
 <script setup lang="ts">
 
-import { ref, apiBaseUrl } from '#imports'
+import { ref } from 'vue'
 import { useMessagesStore } from '~/store/messages'
 import TextArea from '~/components/TextArea.vue'
 import TheClickable from '~/components/Clickable.vue'
 
 const messagesStore = useMessagesStore()
-
 const message = ref('')
+const sending = ref(false)
 
 const handleKeyDown = (event: KeyboardEvent) => {
 	if (event.key === 'Enter' && !event.shiftKey) {
@@ -32,19 +33,19 @@ const handleKeyDown = (event: KeyboardEvent) => {
 }
 
 const sendMessage = () => {
-	if (!message.value) {
+	if (!message.value || sending.value) {
 		return
 	}
 
-	$fetch('/messages', {
-		method: 'POST',
-		baseURL: apiBaseUrl(),
-		body: {
-			message_text: message.value
-		}
-	}).then(() => {
-		message.value = ''
-	})
+	sending.value = true
+
+	messagesStore.send(message.value)
+		.then(() => {
+			message.value = ''
+		})
+		.finally(() => {
+			sending.value = false
+		})
 }
 
 </script>

@@ -1,6 +1,7 @@
+import { useNuxtApp } from '#app'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { useGetFetch, useGetReq } from '~/composables/use-request'
+import { useGetFetch, useGetReq, usePostReq } from '~/composables/use-request'
 
 export type Message = {
 	id: number
@@ -8,13 +9,20 @@ export type Message = {
 	created_at: number
 }
 
-export const useMessagesStore = defineStore('ws', () => {
+export const useMessagesStore = defineStore('messages', () => {
 	const messages = ref<Message[]>([])
-	const limit = 50
+	const limit = 80
 	const offset = ref(0)
 	const thatsAll = ref(false)
+	const { $echo } = useNuxtApp()
 
-	const loadMore = () => {
+	process.client && $echo
+		.channel('messages')
+		.listen('MessageSent', ({ message }: { message: Message }) => {
+			messages.value.unshift(message)
+		})
+
+	const loadMore = (beforeStateUpdating: () => void) => {
 		if (thatsAll.value) {
 			return
 		}
@@ -24,7 +32,8 @@ export const useMessagesStore = defineStore('ws', () => {
 		return useGetReq<Message[]>('/messages', {
 			query: { limit, offset: offset.value }
 		}).send().then(_messages => {
-			_messages.reverse().forEach(m => messages.value.unshift(m))
+			beforeStateUpdating()
+			_messages.forEach(m => messages.value.push(m))
 			thatsAll.value = _messages.length < limit
 		}).catch(e => {
 			offset.value -= limit
@@ -34,13 +43,18 @@ export const useMessagesStore = defineStore('ws', () => {
 	}
 
 	const fetch = () => {
-		offset.value = limit
+		const _limit = 20
+		offset.value = _limit
 
 		return useGetFetch<Message[]>('/messages', 'messages', {
 			query: { limit, offset: 0 }
 		}).send().then(({ data: _messages }) => {
 			messages.value = _messages.value as Message[]
 		})
+	}
+
+	const send = (message_text: string) => {
+		return usePostReq('/messages', { message_text }).send()
 	}
 
 	const groupedMessages = computed(() => {
@@ -65,5 +79,5 @@ export const useMessagesStore = defineStore('ws', () => {
 		}, {})
 	})
 
-	return { messages, groupedMessages, fetch, loadMore }
+	return { messages, groupedMessages, thatsAll, fetch, loadMore, send }
 })
