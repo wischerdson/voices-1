@@ -5,6 +5,7 @@ import type { KeysOf, PickFrom } from '#app/composables/asyncData'
 import { apiBaseUrl } from '~/utils/helpers'
 import { defaults } from 'lodash-es'
 import { useAsyncData } from 'nuxt/app'
+import type { User } from '~/store/user'
 
 export type AsyncDataResponse<DataT, ErrorT = FetchError> = AsyncData<PickFrom<DataT, KeysOf<DataT>> | null, ErrorT | NuxtError<ErrorT> | null>
 
@@ -14,7 +15,9 @@ export interface AppRequest<DataT, ErrorT, ResponseT, RequestT extends NitroFetc
 	setOption<K extends keyof Options<DataT, RequestT>>(name: K, value: Options<DataT, RequestT>[K]): AppRequest<DataT, ErrorT, ResponseT, RequestT>
 	getOption<K extends keyof Options<DataT, RequestT>>(name: K): Options<DataT, RequestT>[K]
 	setHeader(name: string, value?: string | null): AppRequest<DataT, ErrorT, ResponseT, RequestT>
+	setBearerToken(token: string): AppRequest<DataT, ErrorT, ResponseT, RequestT>
 	asAsyncData(key: string, opts?: AsyncDataOptions<DataT>): AppRequest<DataT, ErrorT, AsyncDataResponse<DataT, ErrorT>, RequestT>
+	sign(user: User | undefined, throwIfUndefined?: boolean): AppRequest<DataT, ErrorT, ResponseT, RequestT>
 	send(): ResponseT
 }
 
@@ -44,6 +47,11 @@ export const makeRequest = <
 
 			return request
 		},
+		setBearerToken(token) {
+			request.setHeader('Authorization', `Bearer ${token}`)
+
+			return request
+		},
 		asAsyncData(key, asyncDataOpts) {
 			asyncDataKey = key
 
@@ -53,6 +61,15 @@ export const makeRequest = <
 			})
 
 			return request as unknown as AppRequest<DataT, ErrorT, AsyncDataResponse<DataT, ErrorT>, RequestT>
+		},
+		sign(user, throwIfUndefined = true) {
+			if (user) {
+				request.setBearerToken(user.id)
+			} else if (throwIfUndefined) {
+				throw new Error('User is not defined')
+			}
+
+			return request
 		},
 		send() {
 			const fetch = () => $fetch<DataT>(url, options)

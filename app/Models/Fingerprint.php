@@ -8,24 +8,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
- * @property string $client_code
  * @property int $user_id
- * @property string $text
- * @property \Illuminate\Support\Carbon $created_at
+ * @property string $fingerprint
  */
-class Message extends Model
+class Fingerprint extends Model
 {
 	use HasFactory;
 
-	const UPDATED_AT = null;
+	public $timestamps = false;
 
-	protected $table = 'messages';
+	protected $table = 'user_fingerprints';
 
-	protected $fillable = ['client_code', 'text'];
-
-	protected $casts = [
-		'created_at' => 'timestamp',
-	];
+	protected $fillable = ['fingerprint'];
 
 	public function user(): BelongsTo
 	{

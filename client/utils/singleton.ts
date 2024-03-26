@@ -1,6 +1,6 @@
 const instances: any = {}
 
-export const singleton = <T = any>(key: string, callback: () => T): T => {
+export const singleton = <T>(key: string, callback: () => T): T => {
 	if (!(key in instances)) {
 		instances[key] = callback()
 	}
@@ -8,7 +8,7 @@ export const singleton = <T = any>(key: string, callback: () => T): T => {
 	return instances[key]
 }
 
-export const singletonClientOnly = <T = any>(key: string, callback: () => T): T => {
+export const singletonClientOnly = <T>(key: string, callback: () => T): T => {
 	if (process.server) {
 		return callback()
 	}

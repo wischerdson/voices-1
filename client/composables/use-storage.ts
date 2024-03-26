@@ -1,3 +1,4 @@
+import type { WatchOptions } from 'vue'
 import { useState } from '#app'
 import { snakeCase } from 'lodash-es'
 import { watch } from 'vue'
@@ -36,21 +37,21 @@ const dummyStorageDriver = <T>(key: string, init: () => T): Storage<T> => {
 	}
 }
 
-const useStorage = <T>(stateKey: string, { read, write }: Storage<T>) => {
+const useStorage = <T>(stateKey: string, { read, write }: Storage<T>, watchOptions: WatchOptions) => {
 	const state = useState<T>(stateKey, read)
 
-	watch(state, write)
+	watch(state, write, watchOptions)
 
 	return state
 }
 
-export const useLocalStorage = <T>(key: string, init: () => T) => {
+export const useLocalStorage = <T>(key: string, init: () => T, watchOptions: WatchOptions = {}) => {
 	const stateKey = 'local_storage_' + snakeCase(key)
 
 	return singletonClientOnly(stateKey, () => {
 		const storageKey = 'app_' + snakeCase(key)
 		const driver = process.server ? dummyStorageDriver(storageKey, init) : localStorageDriver(storageKey, init)
 
-		return useStorage(stateKey, driver)
+		return useStorage<T>(stateKey, driver, watchOptions)
 	})
 }

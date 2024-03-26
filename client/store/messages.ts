@@ -1,7 +1,7 @@
 import { useNuxtApp } from '#app'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { useGetFetch, useGetReq, usePostReq } from '~/composables/use-request'
+import { messagesBatcher, sendMessage } from '~/repositories/messages'
 
 export type Message = {
 	id: number
@@ -9,37 +9,9 @@ export type Message = {
 	created_at: number
 }
 
-let messages: number[] | undefined = void 0
-
-const writeMyMessagesIds = () => {
-	window.localStorage.setItem('my-messages', JSON.stringify(messages))
-}
-
-const addMyMessageId = (id: number) => {
-	messages?.push(id)
-	writeMyMessagesIds()
-}
-
-const getMyMessagesIds = (): number[] => {
-	if (messages !== undefined) {
-		return messages
-	}
-
-	let value = window.localStorage.getItem('my-messages')
-
-	if (!value) {
-		writeMyMessagesIds()
-	}
-
-	messages = JSON.parse(value || '[]')
-
-	return getMyMessagesIds()
-}
-
 export const useMessagesStore = defineStore('messages', () => {
 	const messages = ref<Message[]>([])
-	const limit = 70
-	const offset = ref(0)
+	const pagination = messagesBatcher(0)
 	const thatsAll = ref(false)
 	const { $echo } = useNuxtApp()
 
@@ -49,35 +21,38 @@ export const useMessagesStore = defineStore('messages', () => {
 			messages.value.unshift(message)
 		})
 
-	const loadMore = (beforeStateUpdating: () => void) => {
+	const loadMore = async (beforeStateUpdating: () => void) => {
 		if (thatsAll.value) {
 			return
 		}
 
-		return useGetReq<Message[]>('/messages', {
-			query: { limit, offset: offset.value }
-		}).send().then(_messages => {
-			offset.value += limit
-			beforeStateUpdating()
-			_messages.forEach(m => messages.value.push(m))
-			thatsAll.value = _messages.length < limit
-		})
+		const LIMIT = 70
+		const { data, status } = await pagination.next(LIMIT)
+
+		if (status.value === 'error' || !data.value) {
+			throw new Error('Failed to fetch messages batch')
+		}
+
+		beforeStateUpdating()
+		data.value.forEach(m => messages.value.push(m))
+
+		thatsAll.value = data.value.length < LIMIT
 	}
 
-	const fetch = () => {
-		const _limit = 15
-		offset.value = _limit
+	const fetch = async () => {
+		const { data, status } = await pagination.firstBatch(15)
 
-		return useGetFetch<Message[]>('/messages', 'messages', {
-			query: { limit: _limit, offset: 0 }
-		}).send().then(({ data: _messages }) => {
-			messages.value = _messages.value as Message[]
-		})
+		if (status.value === 'error' || !data.value) {
+			throw new Error('Failed to fetch messages first batch')
+		}
+
+		messages.value = data.value
 	}
 
-	const send = (message_text: string) => {
-		return usePostReq<Message>('/messages', { message_text }).send()
-			.then(({ id }) => addMyMessageId(id))
+	const send = (text: string) => {
+		const { clientCode, request } = sendMessage(text)
+
+		return request
 	}
 
 	const groupedMessages = computed(() => {

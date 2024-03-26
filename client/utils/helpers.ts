@@ -28,3 +28,14 @@ export const clickOutside = ($element: Ref<HTMLElement | undefined>, callback: (
 		}
 	}
 }
+
+export const randomString = (length: number) => {
+	const characters = 'abcdefghijklmnopqrstuvwxyz0123456789'
+	let result = ''
+
+	for (let i = length - 1; i >= 0; i--) {
+		result += characters.charAt(Math.floor(Math.random() * characters.length))
+	}
+
+	return result;
+}

@@ -10,6 +10,7 @@
 		"postinstall": "nuxt prepare client"
 	},
 	"dependencies": {
+		"@fingerprintjs/fingerprintjs": "^4.2.2",
 		"@pinia/nuxt": "^0.5.1",
 		"@vueuse/core": "^10.9.0",
 		"lodash-es": "^4.17.21",
