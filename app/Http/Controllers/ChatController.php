@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Events\MessageSent;
-use App\Http\Resources\UserResource;
 use App\Models\Fingerprint;
 use App\Models\Message;
 use App\Models\User;
@@ -52,7 +51,7 @@ class ChatController extends Controller
 
 		$user->fingerprints()->saveMany($missingFingerprints);
 
-		return new UserResource($user);
+		return $user;
 	}
 
 	public function messages(Request $request)

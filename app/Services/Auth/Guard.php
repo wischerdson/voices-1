@@ -27,11 +27,20 @@ class Guard implements AuthGuard
 
 		$request = $this->app->make('request');
 
-		if (!$externalId = $request->bearerToken()) {
+		if (!$bearerToken = $request->bearerToken()) {
 			return null;
 		}
 
-		return $this->user = User::query()->where('external_id', $externalId)->first();
+		if (!str_contains($bearerToken, ':')) {
+			return null;
+		}
+
+		[$userId, $userToken] = explode(':', $bearerToken, 2);
+
+		return $this->user = User::query()
+			->where('id', $userId)
+			->where('token', $userToken)
+			->first();
 	}
 
 	public function validate(array $credentials = []): bool

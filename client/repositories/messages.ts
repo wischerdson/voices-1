@@ -27,7 +27,7 @@ export const messagesBatcher = (startOffset: number) => {
 	const firstBatch = (limit: number) => {
 		offset = startOffset + limit
 
-		return fetchMessages(limit, startOffset).asAsyncData('messages').send()
+		return fetchMessages(limit, startOffset).asAsyncData('messages', { server: false }).send()
 			.catch(e => {
 				offset = startOffset
 

@@ -27,6 +27,7 @@ export const makeRequest = <
 	RequestT extends NitroFetchRequest = NitroFetchRequest
 > (url: RequestT, opts?: NitroFetchOptions<RequestT>) => {
 	const options = defaults<unknown, Options<DataT, RequestT>>(opts, {
+		headers: {},
 		baseURL: apiBaseUrl(),
 		mode: 'cors'
 	})
@@ -64,7 +65,7 @@ export const makeRequest = <
 		},
 		sign(user, throwIfUndefined = true) {
 			if (user) {
-				request.setBearerToken(user.id)
+				request.setBearerToken(`${user.id}:${user.token}`)
 			} else if (throwIfUndefined) {
 				throw new Error('User is not defined')
 			}

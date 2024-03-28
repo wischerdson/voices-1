@@ -4,7 +4,7 @@
 			<div class="text-center py-4 sticky top-0">
 				<div class="bg-gray-900 text-gray-450 text-xs px-4 py-1.5 inline-block rounded-full">{{ timestampToDate(timestamp) }}</div>
 			</div>
-			<div class="pr-10 space-y-4">
+			<div class="space-y-4">
 				<TheMessage :message="message" v-for="message in messages" :key="`message-${message.id}`" />
 			</div>
 		</div>

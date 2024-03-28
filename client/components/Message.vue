@@ -1,15 +1,16 @@
 <template>
-	<div class="flex flex-col items-start">
+	<div class="message flex flex-col items-start" :class="{ 'message-is-mine': isMessageMine }">
+		{{ messagesStore.isMessageMine(message) ? 'true' : 'false' }}
 		<div class="relative">
-			<div class="message bg-gray-900 py-3 pl-5 rounded-lg leading-normal whitespace-pre-line text-sm relative pr-14" >
+			<div class="message-bubble bg-gray-900 py-2 pl-5 rounded-lg leading-normal whitespace-pre-line text-sm relative pr-14">
 				<span>{{ message.text }}</span>
-				<div class="absolute inset-y-0 flex items-end pb-4 bottom-0 right-0 pr-2.5">
-					<span class="text-xs text-gray-700 font-light">{{ date }}</span>
-					<TheClickable
+				<div class="absolute inset-y-0 flex items-center bottom-0 right-0 pr-2.5">
+					<span class="message-time text-xs text-gray-700 font-light">{{ date }}</span>
+					<!-- <TheClickable
 						class="suggest-reactions text-xs absolute bottom-0 right-0 opacity-80 p-1"
 						:class="{ active: showReactions }"
 						@click="showReactions = !showReactions"
-					>👍🤬</TheClickable>
+					>👍🤬</TheClickable> -->
 				</div>
 			</div>
 			<transition>
@@ -36,14 +37,22 @@
 <script setup lang="ts">
 
 import type { Message } from '~/store/messages'
+import { useMessagesStore } from '~/store/messages'
 import { timestampToTime } from '~/utils/date'
 import { computed, ref } from 'vue'
 import TheClickable from '~/components/Clickable.vue'
+import { onMounted } from 'vue'
 
 const props = defineProps<{ message: Message }>()
 
+const messagesStore = useMessagesStore()
 const showReactions = ref(false)
 const date = computed(() => timestampToTime(props.message.created_at))
+const isMessageMine = ref(false)
+
+onMounted(() => {
+	isMessageMine.value = messagesStore.isMessageMine(props.message)
+})
 
 const reactions = {
 	like: '👍',
@@ -65,6 +74,23 @@ const reactions = {
 <style scoped lang="scss">
 
 .message {
+	padding-right: 40px;
+
+	&.message-is-mine {
+		padding-left: 40px;
+		align-items: flex-end;
+
+		.message-bubble {
+			@apply bg-gray-850;
+
+			.message-time {
+				@apply text-gray-600;
+			}
+		}
+	}
+}
+
+.message-bubble {
 	.suggest-reactions {
 		opacity: 0;
 		transition: opacity .2s ease;
@@ -90,7 +116,7 @@ const reactions = {
 
 	&.v-enter-from, &.v-leave-to {
 		opacity: 0;
-		transform: scale(.65) translateY(-24px);
+		transform: scale(.75) translateY(-24px);
 	}
 }
 

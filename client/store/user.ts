@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 export type User = {
-	id: string
+	id: number
+	token: string
 	created_at: number
 }
 

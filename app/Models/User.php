@@ -24,8 +24,6 @@ class User extends Authenticatable
 		'created_at' => 'timestamp',
 	];
 
-	protected $hidden = ['id', 'external_id'];
-
 	public function messages(): HasMany
 	{
 		return $this->hasMany(Message::class, 'user_id');
@@ -39,13 +37,7 @@ class User extends Authenticatable
 	protected static function booted()
 	{
 		static::creating(function (self $model) {
-			do {
-				$model->external_id = strtolower(Str::random());
-			} while (
-				self::query()
-					->where('external_id', $model->external_id)
-					->exists()
-			);
+			$model->token = strtolower(Str::random());
 		});
 	}
 }
