@@ -27,16 +27,12 @@ export const useMessagesStore = defineStore('messages', () => {
 		}
 
 		const LIMIT = 70
-		const { data, status } = await pagination.next(LIMIT)
-
-		if (status.value === 'error' || !data.value) {
-			throw new Error('Failed to fetch messages batch')
-		}
+		const data = await pagination.next(LIMIT)
 
 		beforeStateUpdating()
-		data.value.forEach(m => messages.value.push(m))
+		data.forEach(m => messages.value.push(m))
 
-		thatsAll.value = data.value.length < LIMIT
+		thatsAll.value = data.length < LIMIT
 	}
 
 	const fetch = async () => {

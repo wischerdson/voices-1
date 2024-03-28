@@ -1,10 +1,10 @@
 import type { Message } from '~/store/messages'
-import { useGetFetch, usePostReq } from '~/composables/use-request'
+import { useGetReq, usePostReq } from '~/composables/use-request'
 import { useUserStore } from '~/store/user'
 import { randomString } from '~/utils/helpers'
 
 export const fetchMessages = (limit: number, offset: number = 0) => {
-	return useGetFetch<Message[]>('/messages', 'messages', {
+	return useGetReq<Message[]>('/messages', {
 		query: { limit, offset }
 	})
 }

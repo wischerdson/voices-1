@@ -55,10 +55,10 @@ export const makeRequest = <
 		asAsyncData(key, asyncDataOpts) {
 			asyncDataKey = key
 
-			Object.assign(options, asyncDataOpts, {
+			Object.assign(options, {
 				immediate: true,
 				server: true
-			})
+			}, asyncDataOpts)
 
 			return request as unknown as AppRequest<DataT, ErrorT, AsyncDataResponse<DataT, ErrorT>, RequestT>
 		},

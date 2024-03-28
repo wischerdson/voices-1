@@ -5,19 +5,17 @@
 				<span>{{ message.text }}</span>
 				<div class="absolute inset-y-0 flex items-end pb-4 bottom-0 right-0 pr-2.5">
 					<span class="text-xs text-gray-700 font-light">{{ date }}</span>
-					<div
-						class="suggest-reactions text-2xs absolute bottom-0 right-0 opacity-80 p-1"
+					<TheClickable
+						class="suggest-reactions text-xs absolute bottom-0 right-0 opacity-80 p-1"
 						:class="{ active: showReactions }"
-						@click.stop="showReactions = true"
-					>👍👎</div>
+						@click="showReactions = !showReactions"
+					>👍🤬</TheClickable>
 				</div>
 			</div>
 			<transition>
-				<div class="reactions absolute top-full right-0 z-10" v-if="showReactions">
-					<div class="absolute -translate-x-1/2 bg-black border border-white/10 p-0.5 rounded-full" ref="$reactions">
-						<div class="flex items-center text-2xl">
-							<TheClickable class="reaction flex items-center justify-center w-10 h-10" v-for="reaction in reactions">{{ reaction }}</TheClickable>
-						</div>
+				<div class="reactions absolute w-[246px] -mr-[123px] top-full right-0 z-10" v-click-outside="() => showReactions = false" v-if="showReactions">
+					<div class="flex flex-wrap text-2xl bg-black border border-white/10 p-0.5 rounded-xl">
+						<TheClickable class="reaction flex items-center justify-center w-10 h-10" v-for="reaction in reactions">{{ reaction }}</TheClickable>
 					</div>
 				</div>
 			</transition>
@@ -39,31 +37,27 @@
 
 import type { Message } from '~/store/messages'
 import { timestampToTime } from '~/utils/date'
-import { computed, ref, onUnmounted } from 'vue'
+import { computed, ref } from 'vue'
 import TheClickable from '~/components/Clickable.vue'
-import { clickOutside } from '~/utils/helpers'
 
 const props = defineProps<{ message: Message }>()
 
 const showReactions = ref(false)
-const $reactions = ref<HTMLElement>()
 const date = computed(() => timestampToTime(props.message.created_at))
-
-const destroyClickOutside = clickOutside($reactions, () => showReactions.value = false).destroy
-
-onUnmounted(() => {
-	destroyClickOutside()
-})
 
 const reactions = {
 	like: '👍',
 	dislike: '👎',
 	lol: '😂',
+	sad: '😢',
 	crying: '😭',
 	fuck: '🤬',
+	nyam: '😋',
 	please: '🙏',
 	belissimo: '🤌',
-	love: '🩷'
+	fuckyou: '🖕',
+	ok: '✅',
+	love: '🩷',
 }
 
 </script>
@@ -96,7 +90,7 @@ const reactions = {
 
 	&.v-enter-from, &.v-leave-to {
 		opacity: 0;
-		transform: scale(.75);
+		transform: scale(.65) translateY(-24px);
 	}
 }
 
