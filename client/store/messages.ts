@@ -1,6 +1,7 @@
+import type { Ref } from 'vue'
 import { useNuxtApp } from '#app'
 import { defineStore, storeToRefs } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch, watchEffect } from 'vue'
 import { messagesBatcher, sendMessage } from '~/repositories/messages'
 import { useUserStore } from './user'
 
@@ -18,6 +19,7 @@ export const useMessagesStore = defineStore('messages', () => {
 	const thatsAll = ref(false)
 	const { $echo } = useNuxtApp()
 	const { user } = storeToRefs(useUserStore())
+	let pending = ref(false)
 
 	process.client && $echo
 		.channel('messages')
@@ -42,11 +44,9 @@ export const useMessagesStore = defineStore('messages', () => {
 	const fetch = async () => {
 		const { data, status } = await pagination.firstBatch(15)
 
-		if (status.value === 'error' || !data.value) {
-			throw new Error('Failed to fetch messages first batch')
-		}
+		pending.value = false
 
-		messages.value = data.value
+		messages.value = status.value === 'error' || !data.value ? [] : data.value
 	}
 
 	const send = (text: string) => {
@@ -77,6 +77,28 @@ export const useMessagesStore = defineStore('messages', () => {
 		}, {})
 	})
 
+	const groupMessageByDate = (messages: Message[]) => {
+		const localeDateToTimestampMap: { [localeDate: string]: number } = {}
+
+		return messages.reduce<{ [timestamp: number]: Message[] }>((groupedMessages, message) => {
+			const localDate = new Date(message.created_at*1000).toLocaleDateString()
+
+			if (!(localDate in localeDateToTimestampMap)) {
+				localeDateToTimestampMap[localDate] = message.created_at
+			}
+
+			const timestamp = localeDateToTimestampMap[localDate]
+
+			if (!(timestamp in groupedMessages)) {
+				groupedMessages[timestamp] = []
+			}
+
+			groupedMessages[timestamp].unshift(message)
+
+			return groupedMessages
+		}, {})
+	}
+
 	const isMessageMine = ({ user_id }: Message) => {
 		if (user.value) {
 			return +user.value.id === +user_id
@@ -85,5 +107,5 @@ export const useMessagesStore = defineStore('messages', () => {
 		return false
 	}
 
-	return { messages, groupedMessages, thatsAll, fetch, loadMore, send, isMessageMine }
+	return { messages, groupedMessages, thatsAll, pending, fetch, loadMore, send, isMessageMine }
 })

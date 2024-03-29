@@ -18,11 +18,7 @@ const localStorageDriver = <T>(key: string, init: () => T): Storage<T> => {
 		read() {
 			let dataFromStorage = window.localStorage.getItem(key)
 
-			if (dataFromStorage) {
-				return JSON.parse(dataFromStorage)
-			}
-
-			return init()
+			return dataFromStorage ? JSON.parse(dataFromStorage) : init()
 		},
 		write(data: T) {
 			window.localStorage.setItem(key, JSON.stringify(data))

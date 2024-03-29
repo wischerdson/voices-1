@@ -16,6 +16,6 @@ import { fetchUser } from '~/repositories/user'
 
 useHead({ htmlAttrs: { lang: 'ru-RU' } })
 
-process.client && useUserStore().setUser(await fetchUser())
+// process.client && useUserStore().setUser(await fetchUser())
 
 </script>
