@@ -21,7 +21,12 @@ export default defineNuxtConfig({
 		public: {
 			storageBaseUrl: process.env.STORAGE_URL,
 			apiBaseUrl: process.env.CLIENT_API_URL,
-			wsServerUrl: process.env.WS_SERVER_URL
+
+			pusherHost: process.env.PUSHER_HOST,
+			pusherPort: process.env.PUSHER_PORT,
+
+			ratchetHost: process.env.RATCHET_HOST,
+			ratchetPort: process.env.RATCHET_PORT,
 		},
 		apiBaseUrl: process.env.SERVER_API_URL
 	},

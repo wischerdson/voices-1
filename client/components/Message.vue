@@ -1,11 +1,10 @@
 <template>
-	<div class="message flex flex-col items-start" :class="{ 'message-is-mine': isMessageMine }">
-		{{ messagesStore.isMessageMine(message) ? 'true' : 'false' }}
+	<div class="message flex flex-col items-start" :class="{ 'message-is-mine': messagesStore.isMessageMine(message) }">
 		<div class="relative">
-			<div class="message-bubble bg-gray-900 py-2 pl-5 rounded-lg leading-normal whitespace-pre-line text-sm relative pr-14">
+			<div class="message-bubble bg-gray-900 py-2 pl-3 rounded-lg leading-normal whitespace-pre-line text-sm relative pr-12">
 				<span>{{ message.text }}</span>
-				<div class="absolute inset-y-0 flex items-center bottom-0 right-0 pr-2.5">
-					<span class="message-time text-xs text-gray-700 font-light">{{ date }}</span>
+				<div class="absolute inset-y-0 flex items-end pb-2.5 bottom-0 right-0 pr-2">
+					<span class="message-time text-[.625rem] text-gray-700 font-light">{{ date }}</span>
 					<!-- <TheClickable
 						class="suggest-reactions text-xs absolute bottom-0 right-0 opacity-80 p-1"
 						:class="{ active: showReactions }"
@@ -41,18 +40,12 @@ import { useMessagesStore } from '~/store/messages'
 import { timestampToTime } from '~/utils/date'
 import { computed, ref } from 'vue'
 import TheClickable from '~/components/Clickable.vue'
-import { onMounted } from 'vue'
 
 const props = defineProps<{ message: Message }>()
 
 const messagesStore = useMessagesStore()
 const showReactions = ref(false)
 const date = computed(() => timestampToTime(props.message.created_at))
-const isMessageMine = ref(false)
-
-onMounted(() => {
-	isMessageMine.value = messagesStore.isMessageMine(props.message)
-})
 
 const reactions = {
 	like: '👍',
@@ -78,6 +71,7 @@ const reactions = {
 
 	&.message-is-mine {
 		padding-left: 40px;
+		padding-right: 0;
 		align-items: flex-end;
 
 		.message-bubble {

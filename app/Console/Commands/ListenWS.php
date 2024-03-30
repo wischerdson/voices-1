@@ -22,7 +22,9 @@ class ListenWS extends Command
 	 */
 	public function handle()
 	{
-		$PORT = 2008;
+		$PORT = env('RATCHET_PORT', 2008);
+
+		echo "WS server listening $PORT port\n";
 
 		$ws = new WsServer(new WebsocketWorker());
 
@@ -36,7 +38,6 @@ class ListenWS extends Command
 		$this->trap(SIGINT, $sigHandler);
 		$this->trap(SIGHUP, $sigHandler);
 
-		echo "WS server listening $PORT port";
 		$server->run();
 
 		return self::SUCCESS;

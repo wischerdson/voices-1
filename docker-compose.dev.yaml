@@ -5,6 +5,10 @@ services:
     depends_on:
       - mariadb
 
+  ratchet:
+    depends_on:
+      - mariadb
+
   # queue:
   #   depends_on:
   #     - mariadb

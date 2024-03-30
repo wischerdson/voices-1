@@ -10,20 +10,29 @@ use SplObjectStorage;
 
 class WebsocketWorker implements MessageComponentInterface
 {
-	protected $clients;
+	protected SplObjectStorage $connections;
+
+	protected array $clients = [];
 
 	private int $writing = 0;
 
 	public function __construct()
 	{
-		$this->clients = new SplObjectStorage();
+		$this->connections = new SplObjectStorage();
 	}
 
 	public function onOpen(ConnectionInterface $conn)
 	{
-		$this->clients->attach($conn);
+		$this->connections->attach($conn);
 
-		$this->sendToAllConnectionsExceptCurrent($conn, 'online', count($this->clients));
+		$clientId = $this->getClientId($conn);
+
+		if (isset($this->clients[$clientId])) {
+			$this->clients[$clientId]++;
+		} else {
+			$this->clients[$clientId] = 1;
+			$this->sendToAllConnectionsExceptCurrent($conn, 'online', count($this->clients));
+		}
 	}
 
 	public function onMessage(ConnectionInterface $from, $msg) {
@@ -33,29 +42,44 @@ class WebsocketWorker implements MessageComponentInterface
 			case 'online':
 				$this->sendToCurrentConnection($from, 'online', count($this->clients));
 				break;
-			case 'writing_on':
-				$this->writing++;
-				$this->sendToAllConnectionsExceptCurrent($from, 'writing', $this->writing);
-				break;
-			case 'writing_off':
-				$this->writing--;
+			case 'writing':
+				$this->writing += $jsonMsg->payload ? 1 : -1;
 				$this->sendToAllConnectionsExceptCurrent($from, 'writing', $this->writing);
 				break;
 		}
 	}
 
 	public function onClose(ConnectionInterface $conn) {
-		$this->clients->detach($conn);
-
-		$this->sendToAllConnections('online', count($this->clients));
+		$this->detach($conn);
 	}
 
 	public function onError(ConnectionInterface $conn, Exception $e) {
 		Log::error($e->getMessage());
+		$this->detach($conn);
+	}
 
-		$conn->close();
-		$this->clients->detach($conn);
-		$this->sendToAllConnections('online', count($this->clients));
+	private function detach(ConnectionInterface $connection)
+	{
+		$connection->close();
+		$this->connections->detach($connection);
+
+		$clientId = $this->getClientId($connection);
+
+		if (isset($this->clients[$clientId])) {
+			$this->clients[$clientId]--;
+
+			if ($this->clients[$clientId] <= 0) {
+				unset($this->clients[$clientId]);
+				$this->sendToAllConnections('online', count($this->clients));
+			}
+		}
+	}
+
+	private function getClientId(ConnectionInterface $connection)
+	{
+		$url = $connection->httpRequest->getUri()->getPath();
+
+		return ltrim($url, '/client/');
 	}
 
 	private function sendToCurrentConnection(ConnectionInterface $currentConnection, string $type, mixed $payload)
@@ -67,9 +91,9 @@ class WebsocketWorker implements MessageComponentInterface
 	{
 		$json = $this->toJson($type, $payload);
 
-		foreach ($this->clients as $client) {
-			if ($currentConnection !== $client) {
-				$client->send($json);
+		foreach ($this->connections as $conn) {
+			if ($currentConnection !== $conn) {
+				$conn->send($json);
 			}
 		}
 	}
@@ -78,8 +102,8 @@ class WebsocketWorker implements MessageComponentInterface
 	{
 		$json = $this->toJson($type, $payload);
 
-		foreach ($this->clients as $client) {
-			$client->send($json);
+		foreach ($this->connections as $conn) {
+			$conn->send($json);
 		}
 	}
 

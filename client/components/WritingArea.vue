@@ -1,14 +1,15 @@
 <template>
-	<div class="py-6 max-w-3xl mx-auto flex space-x-4 items-end">
+	<div class="py-6 sm:py-3 max-w-3xl mx-auto flex space-x-4 items-end">
 		<TextArea
 			class="flex-1 resize-none max-h-72 bg-gray-900 px-5 py-2.5 leading-normal h-[46px] rounded-lg"
 			:allow-shrink="true"
 			@keydown="handleKeyDown"
 			v-model="message"
+			placeholder="Сообщение..."
 		></TextArea>
-		<TheClickable class="bg-gray-900 w-[46px] h-[46px] rounded-full" @click="sendMessage" :style="{ opacity: message ? '' : '.7' }">
+		<TheClickable class="bg-gray-900 sm:bg-black/0 sm:w-[26px] w-[46px] h-[46px] rounded-full" @click="sendMessage" :style="{ opacity: message ? '' : '.7' }">
 			<icon name="svg-spinners:90-ring-with-bg" :size="`26px`" v-if="sending" />
-			<icon class="ml-1" name="material-symbols:send-rounded" size="26px" v-else />
+			<icon class="ml-1 sm:ml-0" name="material-symbols:send-rounded" size="26px" v-else />
 		</TheClickable>
 	</div>
 </template>

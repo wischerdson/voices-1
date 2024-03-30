@@ -1,14 +1,13 @@
 <template>
 	<div class="header bg-black">
-		<div class="p-4 flex justify-between max-w-3xl mx-auto">
+		<div class="p-4 flex justify-between items-center max-w-3xl mx-auto">
 			<TheLogo />
 			<div class="h-full flex items-center">
 				<div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
 				<div class="text-sm">
 					<span class="text-gray-600">Онлайн: </span>
-					<!-- <span v-if="wsStore.data && wsStore.data.type === 'online'">
-						<span>{{ wsStore.data.payload.online }}</span>
-					</span> -->
+					<span v-if="connectionsCount">{{ connectionsCount }}</span>
+					<icon name="svg-spinners:90-ring-with-bg" :size="`19px`" v-else />
 				</div>
 			</div>
 		</div>
@@ -21,34 +20,22 @@
 <script setup lang="ts">
 
 import TheLogo from '~/components/Logo.vue'
-import { onMounted, ref } from 'vue'
-import { useScroll } from '@vueuse/core'
+import { ref } from 'vue'
 import { useNuxtApp } from '#app'
-// import { useWsServerDataStore } from '~/store/ws-server-data'
+import { useUserStore } from '~/store/user'
+import { storeToRefs } from 'pinia'
+import { watchEffect } from 'vue'
 
-// const wsStore = useWsServerDataStore()
+const connectionsCount = ref(0)
+const { user } = storeToRefs(useUserStore())
+const ratchet = useNuxtApp().$ratchet
 
-const $document = ref<Document>()
+process.client && ratchet.listen('online', (connections: number) => {
+	connectionsCount.value = connections
+})
 
-const { arrivedState } = useScroll($document)
-
-onMounted(() => {
-	$document.value = document
-
-	// $echo
-	// 	.channel('online')
-	// 	.listen('ConnectionsCountChanged', function (e) {
-	// 		console.log(e)
-	// 	})
-		// .join('online')
-		// // .join('online')
-		// // .join('online')
-		// // .here((users) => {
-		// // 	console.log(users)
-		// // })
-		// .joining(() => {
-		// 	console.log('Joining')
-		// })
+process.client && ratchet.onOpen(() => {
+	watchEffect(() => user.value && ratchet.send('online', user.value.token))
 })
 
 </script>

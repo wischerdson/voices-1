@@ -2,10 +2,10 @@ import { defineNuxtPlugin } from '#imports'
 import Pusher from 'pusher-js'
 import Echo from 'laravel-echo'
 
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin(app => {
 	const pusher = new Pusher('app-key', {
-		wsHost: 'localhost',
-		wsPort: 2007,
+		wsHost: app.$config.public.pusherHost,
+		wsPort: +app.$config.public.pusherPort,
 		forceTLS: false,
 		disableStats: true,
 		cluster: '',

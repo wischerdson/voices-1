@@ -9,6 +9,15 @@ services:
     depends_on:
       - redis
 
+  ratchet:
+    build: ./.docker/php
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - 2008:2008
+    command: sh -c "php artisan ws:listen"
+
   soketi:
     image: quay.io/soketi/soketi:0.34-16-distroless
     ports:

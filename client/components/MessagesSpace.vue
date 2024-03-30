@@ -1,25 +1,21 @@
 <template>
 	<div class="min-h-full flex flex-col justify-end pt-12">
-		{{ messagesStore.groupedMessages }}
-		<div v-if="!messagesStore.messages && messagesStore.pending">
+		<div class="text-gray-500 mb-10" v-if="pending">
 			Загрузка...
 		</div>
-		<div v-else-if="messagesStore.messages">
-			<div class="" v-for="(messages, timestamp) in groupedMessages" :key="`messages-group-${timestamp}`">
-				<div class="text-center py-4 sticky top-0">
-					<div class="bg-gray-900 text-gray-450 text-xs px-4 py-1.5 inline-block rounded-full">{{ timestampToDate(timestamp) }}</div>
-				</div>
-				<div class="space-y-4">
-					<TheMessage :message="message" v-for="message in messages" :key="`message-${message.id}`" />
-				</div>
+
+		<div v-for="(messages, timestamp) in groupedMessages" :key="`messages-group-${timestamp}`">
+			<div class="text-center py-4 sticky top-0 z-10">
+				<div class="bg-gray-900 text-gray-450 text-xs px-4 py-1.5 inline-block rounded-full">{{ timestampToDate(timestamp) }}</div>
+			</div>
+			<div class="space-y-4">
+				<TheMessage :message="message" v-for="message in messages" :key="`message-${message.id}`" />
 			</div>
 		</div>
 
-
-
-		<!-- <div class="writing text-xs text-gray-600 mt-6" :class="{ not: writing }">
+		<div class="writing text-xs text-gray-600 mt-6 sm:mb-4 sm:mt-4" :class="{ not: writing }">
 			<span>Кто-то скребется...</span>
-		</div> -->
+		</div>
 	</div>
 </template>
 
@@ -27,12 +23,13 @@
 
 import TheMessage from '~/components/Message.vue'
 import { timestampToDate } from '~/utils/date'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useMessagesStore } from '~/store/messages'
 
 const writing = ref(false)
 const messagesStore = useMessagesStore()
-const groupedMessages = messagesStore.groupedMessages
+const { groupedMessages, pending } = storeToRefs(messagesStore)
 
 </script>
 
