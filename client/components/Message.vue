@@ -7,7 +7,7 @@
 					<span class="message-time text-[.625rem] text-gray-700 font-light">{{ date }}</span>
 				</div>
 			</div>
-			<MessageReactions :is-mine="isMine" :show-no-reactions-button="messageHovered" />
+			<MessageReactions :show-no-reactions-button="messageHovered" />
 		</div>
 	</div>
 </template>
