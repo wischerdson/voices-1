@@ -82,6 +82,5 @@ export const useMessagesStore = defineStore('messages', () => {
 
 	const isMessageMine = ({ user_id }: Message) => user.value && +user.value.id === +user_id
 
-
 	return { messages, groupedMessages, thatsAll, pending, fetch, loadMore, send, isMessageMine }
 })

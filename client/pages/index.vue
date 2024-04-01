@@ -19,15 +19,13 @@ import WritingArea from '~/components/WritingArea.vue'
 import MessagesSpace from '~/components/MessagesSpace.vue'
 import InfiniteScrollZone from '~/components/InfiniteScrollZone.vue'
 
-useHead({ title: 'Чат - Voices of the Void' })
+useHead({ title: 'Чат - Void\'s voices' })
 
 const messagesStore = useMessagesStore()
 
 await messagesStore.fetch()
 
-const loadMore = (onBeforeUpdate: () => void, onAfterUpdate: () => void) => {
-	messagesStore.loadMore(onBeforeUpdate)?.finally(onAfterUpdate)
-}
+const loadMore = (onBeforeUpdate: () => void) => messagesStore.loadMore(onBeforeUpdate)
 
 </script>
 
@@ -36,6 +34,7 @@ const loadMore = (onBeforeUpdate: () => void, onAfterUpdate: () => void) => {
 body {
 	background-color: #000;
 	color: #fff;
+	overflow: hidden;
 }
 
 </style>

@@ -1,34 +1,13 @@
 <template>
-	<div class="message flex flex-col items-start" :class="{ 'message-is-mine': messagesStore.isMessageMine(message) }">
-		<div class="relative">
+	<div class="message-row flex" :class="{ 'message-is-mine': isMine }">
+		<div class="message" @mouseover="messageHovered = true" @mouseleave="messageHovered = false">
 			<div class="message-bubble bg-gray-900 py-2 pl-3 rounded-lg leading-normal whitespace-pre-line text-sm relative pr-12">
 				<span>{{ message.text }}</span>
 				<div class="absolute inset-y-0 flex items-end pb-2.5 bottom-0 right-0 pr-2">
 					<span class="message-time text-[.625rem] text-gray-700 font-light">{{ date }}</span>
-					<!-- <TheClickable
-						class="suggest-reactions text-xs absolute bottom-0 right-0 opacity-80 p-1"
-						:class="{ active: showReactions }"
-						@click="showReactions = !showReactions"
-					>👍🤬</TheClickable> -->
 				</div>
 			</div>
-			<transition>
-				<div class="reactions absolute w-[246px] -mr-[123px] top-full right-0 z-10" v-click-outside="() => showReactions = false" v-if="showReactions">
-					<div class="flex flex-wrap text-2xl bg-black border border-white/10 p-0.5 rounded-xl">
-						<TheClickable class="reaction flex items-center justify-center w-10 h-10" v-for="reaction in reactions">{{ reaction }}</TheClickable>
-					</div>
-				</div>
-			</transition>
-		</div>
-		<div class="flex items-center text-xs space-x-2 mt-1 mb-2">
-			<div class="flex items-center">
-				<div class="mr-1">👍</div>
-				<div class="text-gray-500">5</div>
-			</div>
-			<div class="flex items-center">
-				<div class="mr-1">🤬</div>
-				<div class="text-gray-500">2</div>
-			</div>
+			<MessageReactions :is-mine="isMine" :show-no-reactions-button="messageHovered" />
 		</div>
 	</div>
 </template>
@@ -39,40 +18,29 @@ import type { Message } from '~/store/messages'
 import { useMessagesStore } from '~/store/messages'
 import { timestampToTime } from '~/utils/date'
 import { computed, ref } from 'vue'
-import TheClickable from '~/components/Clickable.vue'
+import MessageReactions from '~/components/MessageReactions.vue'
 
 const props = defineProps<{ message: Message }>()
 
 const messagesStore = useMessagesStore()
-const showReactions = ref(false)
-const date = computed(() => timestampToTime(props.message.created_at))
 
-const reactions = {
-	like: '👍',
-	dislike: '👎',
-	lol: '😂',
-	sad: '😢',
-	crying: '😭',
-	fuck: '🤬',
-	nyam: '😋',
-	please: '🙏',
-	belissimo: '🤌',
-	fuckyou: '🖕',
-	ok: '✅',
-	love: '🩷',
-}
+const messageHovered = ref(false)
+
+const date = computed(() => timestampToTime(props.message.created_at))
+const isMine = computed(() => !!messagesStore.isMessageMine(props.message))
 
 </script>
 
 <style scoped lang="scss">
 
-.message {
+.message-row {
 	padding-right: 40px;
+	justify-content: flex-start;
 
 	&.message-is-mine {
 		padding-left: 40px;
 		padding-right: 0;
-		align-items: flex-end;
+		justify-content: flex-end;
 
 		.message-bubble {
 			@apply bg-gray-850;
@@ -81,46 +49,6 @@ const reactions = {
 				@apply text-gray-600;
 			}
 		}
-	}
-}
-
-.message-bubble {
-	.suggest-reactions {
-		opacity: 0;
-		transition: opacity .2s ease;
-		cursor: pointer;
-
-		&.active {
-			opacity: .8;
-		}
-	}
-
-	&:hover {
-		.suggest-reactions {
-			transform: translateX(0);
-			opacity: .8;
-		}
-	}
-}
-
-.reactions {
-	&.v-enter-active, &.v-leave-active {
-		transition: opacity .15s ease, transform .15s ease;
-	}
-
-	&.v-enter-from, &.v-leave-to {
-		opacity: 0;
-		transform: scale(.75) translateY(-24px);
-	}
-}
-
-.reaction {
-	border-radius: 999px;
-	transition: background-color .15s ease, filter .15s ease;
-
-	&:hover {
-		background-color: rgba(#fff, 10%);
-		filter: grayscale(0);
 	}
 }
 
