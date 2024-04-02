@@ -18,4 +18,11 @@ class Reaction extends Model
 	const UPDATED_AT = null;
 
 	protected $table = 'reactions';
+
+	protected function setKeysForSaveQuery($query)
+	{
+		return $query
+			->where('user_id', $this->user_id)
+			->where('message_id', $this->message_id);
+	}
 }

@@ -36,7 +36,7 @@ class User extends Authenticatable
 
 	public function reactions(): HasMany
 	{
-		return $this->hasMany(Reaction::class, 'message_id');
+		return $this->hasMany(Reaction::class, 'user_id');
 	}
 
 	protected static function booted()

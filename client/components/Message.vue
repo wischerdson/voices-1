@@ -7,7 +7,7 @@
 					<span class="message-time text-[.625rem] text-gray-700 font-light">{{ date }}</span>
 				</div>
 			</div>
-			<MessageReactions :show-no-reactions-button="messageHovered" />
+			<MessageReactions :show-no-reactions-button="messageHovered" @reacted="r => saveReaction(message, r)" />
 		</div>
 	</div>
 </template>
@@ -16,6 +16,7 @@
 
 import type { Message } from '~/store/messages'
 import { useMessagesStore } from '~/store/messages'
+import { saveReaction } from '~/repositories/messages'
 import { timestampToTime } from '~/utils/date'
 import { computed, ref } from 'vue'
 import MessageReactions from '~/components/MessageReactions.vue'

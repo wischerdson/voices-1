@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageReactionsChanged;
 use App\Events\MessageSent;
+use App\Exceptions\MessageNotFoundException;
 use App\Models\Fingerprint;
 use App\Models\Message;
 use App\Models\User;
@@ -84,11 +86,31 @@ class ChatController extends Controller
 		return $message;
 	}
 
-	public function reaction(Request $request)
+	public function saveReaction(Request $request)
 	{
 		$request->validate([
-			'name' => 'required',
-			'message_id' => 'message_id'
+			'reaction_name' => 'required',
+			'message_id' => 'required'
 		]);
+
+		if (!$message = Message::find($request->message_id)) {
+			throw new MessageNotFoundException();
+		}
+
+		/** @var \App\Models\User */
+		$user = $request->user();
+
+		/** @var \App\Models\Reaction */
+		$reaction = $user
+			->reactions()
+			->where('message_id', $message->id)
+			->firstOrNew();
+
+		$reaction->name = $request->reaction_name;
+		$reaction->message_id = $message->id;
+
+		$user->reactions()->save($reaction);
+
+		MessageReactionsChanged::dispatch($message);
 	}
 }

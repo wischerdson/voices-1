@@ -49,3 +49,12 @@ export const sendMessage = (text: string) => {
 			.send()
 	}
 }
+
+export const saveReaction = ({ id }: Message, reaction: string) => {
+	const user = useUserStore().user
+
+	return usePostReq('/reactions', {
+		message_id: id,
+		reaction_name: reaction
+	}).sign(user).send()
+}

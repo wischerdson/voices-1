@@ -25,6 +25,7 @@
 						class="reaction rounded-full flex items-center justify-center w-10 h-10"
 						:class="{ active: key == 'fuck' }"
 						v-for="(reaction, key) in reactions"
+						@click="emit('reacted', key)"
 					>{{ reaction }}</TheClickable>
 				</div>
 			</div>
@@ -37,8 +38,9 @@
 import { ref } from 'vue'
 import TheClickable from '~/components/Clickable.vue'
 
-defineProps<{
-	showNoReactionsButton: boolean
+defineProps<{ showNoReactionsButton: boolean }>()
+const emit = defineEmits<{
+	(e: 'reacted', reaction: string): void
 }>()
 
 const showReactions = ref(false)
@@ -50,12 +52,12 @@ const reactions = {
 	sad: '😢',
 	crying: '😭',
 	fuck: '🤬',
-	nyam: '😋',
+	wow: '🤯',
 	please: '🙏',
 	belissimo: '🤌',
 	fuckyou: '🖕',
 	ok: '✅',
-	love: '🩷',
+	love: '🩷'
 }
 
 </script>
