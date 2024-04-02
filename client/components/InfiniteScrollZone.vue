@@ -6,10 +6,12 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted, onUnmounted } from 'vue'
+import { nextTick, ref, onUnmounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useMessagesStore } from '~/store/messages'
 
 const emit = defineEmits<{
-	(e: 'loadMore', onBeforeUpdate: () => void, onAfterUpdate: () => void): void
+	(e: 'loadMore', onBeforeUpdate: () => void): void
 }>()
 const props = withDefaults(defineProps<{ triggerMargin?: number }>(), { triggerMargin: 500 })
 
@@ -30,16 +32,20 @@ const onScroll = () => {
 	emit('loadMore', () => {
 		scrollTopBefore = $el.scrollTop
 		scrollHeightBefore = $el.scrollHeight
-	}, () => {
-		$el.scrollTo({ top: scrollTopBefore + ($el.scrollHeight - scrollHeightBefore) })
-		setTimeout(() => waiting = false, 100)
+
+		nextTick(() => {
+			$el.scrollTo({ top: scrollTopBefore + ($el.scrollHeight - scrollHeightBefore) })
+			setTimeout(() => waiting = false, 100)
+		})
 	})
 }
 
-onMounted(() => {
-	$scrollable.value?.scrollTo({ top: $scrollable.value.scrollHeight })
+const { messages } = storeToRefs(useMessagesStore())
+
+watch(messages, () => nextTick(() => {
+	$scrollable.value?.scrollTo({ top: $scrollable.value?.scrollHeight })
 	$scrollable.value?.addEventListener('scroll', onScroll)
-})
+}), { once: true })
 
 onUnmounted(() => {
 	$scrollable.value?.removeEventListener('scroll', onScroll)
