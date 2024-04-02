@@ -3,8 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Message>
@@ -23,6 +24,8 @@ class MessageFactory extends Factory
 		return [
 			'text' => fake()->boolean() ? fake()->sentence() : fake()->paragraph(),
 			'user_id' => User::factory(),
+			'client_code' => strtolower(Str::random(6)),
+			'created_at' => fake()->dateTimeBetween('-1 week')
 		];
 	}
 }

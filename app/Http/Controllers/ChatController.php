@@ -83,4 +83,12 @@ class ChatController extends Controller
 
 		return $message;
 	}
+
+	public function reaction(Request $request)
+	{
+		$request->validate([
+			'name' => 'required',
+			'message_id' => 'message_id'
+		]);
+	}
 }

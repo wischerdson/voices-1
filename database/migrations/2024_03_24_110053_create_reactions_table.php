@@ -16,6 +16,8 @@ return new class extends Migration
 			$table->foreignId('message_id')->constrained('messages');
 			$table->string('name');
 			$table->timestamp('created_at')->useCurrent();
+
+			$table->primary(['user_id', 'message_id']);
 		});
 	}
 

@@ -34,6 +34,11 @@ class User extends Authenticatable
 		return $this->hasMany(Fingerprint::class, 'user_id');
 	}
 
+	public function reactions(): HasMany
+	{
+		return $this->hasMany(Reaction::class, 'message_id');
+	}
+
 	protected static function booted()
 	{
 		static::creating(function (self $model) {
