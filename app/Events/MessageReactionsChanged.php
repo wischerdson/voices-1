@@ -17,7 +17,7 @@ class MessageReactionsChanged implements ShouldBroadcastNow
 
 	public Collection $reactions;
 
-	public int $messageId;
+	public int $message_id;
 
 	/**
 	 * Create a new event instance.
@@ -32,7 +32,7 @@ class MessageReactionsChanged implements ShouldBroadcastNow
 			->groupBy('name')
 			->pluck('count', 'name');
 
-		$this->messageId = $message->id;
+		$this->message_id = $message->id;
 	}
 
 	/**

@@ -14,16 +14,16 @@ class MessageResource extends JsonResource
 	 */
 	public function toArray(Request $request): array
 	{
-		$result = $this->resource->toArray();
+		$message = $this->resource->toArray();
 
-		if (isset($result['reactions'])) {
-			$result['reactions'] = $this->reactions->countBy('name');
+		if (isset($message['reactions'])) {
+			$message['reactions'] = $this->reactions->countBy('name');
 
 			if ($user = $request->user()) {
-				$result['my_reaction'] = $this->reactions->where('user_id', $user->id)->value('name');
+				$message['my_reaction'] = $this->reactions->where('user_id', $user->id)->value('name');
 			}
 		}
 
-		return $result;
+		return $message;
 	}
 }

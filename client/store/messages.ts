@@ -1,7 +1,7 @@
 import { useNuxtApp } from '#app'
 import { defineStore, storeToRefs } from 'pinia'
 import { ref, computed } from 'vue'
-import { messagesBatcher, sendMessage } from '~/repositories/messages'
+import { messagesBatcher, saveReaction, sendMessage } from '~/repositories/messages'
 import { useUserStore } from './user'
 
 export type Message = {
@@ -12,6 +12,11 @@ export type Message = {
 	my_reaction: string | null
 	reactions: { [key: string]: number }
 	created_at: number
+}
+
+export type MessageReactionsChangedData = {
+	message_id: number
+	reactions: { [key: string]: number }
 }
 
 export const useMessagesStore = defineStore('messages', () => {
@@ -27,6 +32,16 @@ export const useMessagesStore = defineStore('messages', () => {
 		.channel('messages')
 		.listen('MessageSent', ({ message }: { message: Message }) => {
 			messages.value.unshift(message)
+		})
+
+	process.client && $echo
+		.channel('reactions')
+		.listen('MessageReactionsChanged', ({ message_id, reactions }: MessageReactionsChangedData) => {
+			const idx = messages.value.findIndex(({ id }) => id === message_id)
+
+			if (idx >= 0) {
+				messages.value[idx].reactions = reactions
+			}
 		})
 
 	const loadMore = async (beforeStateUpdating: () => void) => {
@@ -79,5 +94,17 @@ export const useMessagesStore = defineStore('messages', () => {
 
 	const isMessageMine = ({ user_id }: Message) => user.value && +user.value.id === +user_id
 
-	return { messages, groupedMessages, thatsAll, pending, fetch, loadMore, send, isMessageMine }
+	const _saveReaction = async (message: Message, reactionName: string) => {
+		await saveReaction(message, reactionName)
+
+		const idx = messages.value.findIndex(({ id }) => id === message.id)
+
+		messages.value[idx].my_reaction = reactionName
+	}
+
+	return {
+		messages, groupedMessages, thatsAll, pending,
+		fetch, loadMore, send, isMessageMine,
+		saveReaction: _saveReaction
+	}
 })

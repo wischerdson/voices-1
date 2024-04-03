@@ -5,10 +5,10 @@
 		</div>
 
 		<div v-for="(messages, timestamp) in groupedMessages" :key="`messages-group-${timestamp}`">
-			<div class="text-center py-4 sticky top-0 z-10">
-				<div class="bg-gray-900 text-gray-450 text-xs px-4 py-1.5 inline-block rounded-full">{{ timestampToDate(timestamp) }}</div>
+			<div class="text-center py-4 my-4 sticky top-0 z-10">
+				<div class="bg-gray-300 text-black text-xs px-4 py-1.5 inline-block rounded-full">{{ timestampToDate(timestamp) }}</div>
 			</div>
-			<div class="space-y-4">
+			<div class="space-y-6">
 				<TheMessage :message="message" v-for="message in messages" :key="`message-${message.id}`" />
 			</div>
 		</div>
