@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-
 use App\Models\Message;
+use App\Models\User;
+use App\Services\Messages;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,11 +15,15 @@ class DatabaseSeeder extends Seeder
 	 */
 	public function run(): void
 	{
-		Message::factory(1000)->create();
+		$messages = Message::factory(1000)->create();
+		$users = User::query()->take(500)->get();
 
-		// \App\Models\User::factory()->create([
-		//     'name' => 'Test User',
-		//     'email' => 'test@example.com',
-		// ]);
+		for ($i = 0; $i < 1000; $i++) {
+			Messages::saveReaction(
+				$users->random(),
+				$messages->random(),
+				Arr::random(['like', 'dislike', 'lol', 'sad', 'crying', 'fuck', 'wow', 'please', 'belissimo', 'fuckyou', 'ok', 'love'])
+			);
+		}
 	}
 }

@@ -14,7 +14,7 @@
 <script setup lang="ts">
 
 import { useMessagesStore } from '~/store/messages'
-import { useHead } from '#imports'
+import { onMounted, useHead } from '#imports'
 import WritingArea from '~/components/WritingArea.vue'
 import MessagesSpace from '~/components/MessagesSpace.vue'
 import InfiniteScrollZone from '~/components/InfiniteScrollZone.vue'
@@ -23,9 +23,11 @@ useHead({ title: 'Чат - Void\'s voices' })
 
 const messagesStore = useMessagesStore()
 
-await messagesStore.fetch()
-
 const loadMore = (onBeforeUpdate: () => void) => messagesStore.loadMore(onBeforeUpdate)
+
+onMounted(() => {
+	messagesStore.fetch()
+})
 
 </script>
 

@@ -1,6 +1,6 @@
 import { useNuxtApp } from '#app'
 import { defineStore, storeToRefs } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { messagesBatcher, sendMessage } from '~/repositories/messages'
 import { useUserStore } from './user'
 
@@ -9,6 +9,8 @@ export type Message = {
 	user_id: number
 	client_code: string
 	text: string
+	my_reaction: string | null
+	reactions: { [key: string]: number }
 	created_at: number
 }
 
@@ -19,7 +21,7 @@ export const useMessagesStore = defineStore('messages', () => {
 	const thatsAll = ref(false)
 	const { $echo } = useNuxtApp()
 	const { user } = storeToRefs(useUserStore())
-	const pending = ref(false)
+	const pending = ref(true)
 
 	process.client && $echo
 		.channel('messages')
@@ -41,15 +43,10 @@ export const useMessagesStore = defineStore('messages', () => {
 	}
 
 	const fetch = async () => {
-		pending.value = true
 		const { data } = await pagination.firstBatch(10)
 
 		messages.value = data.value || []
-
-		watch(data, value => {
-			messages.value = value || []
-			pending.value = !value
-		}, { once: true })
+		pending.value = false
 	}
 
 	const send = (text: string) => {

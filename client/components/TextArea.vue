@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 
-import { useAttrs, onMounted, onUnmounted, ref } from '#imports'
+import { useAttrs, onMounted, onUnmounted, ref, watch, nextTick } from '#imports'
 
 const attrs = useAttrs()
 
@@ -34,6 +34,8 @@ const setHeight = () => {
 		tx.style.height = `${tx.scrollHeight + 2}px`
 	}
 }
+
+watch(() => props.modelValue, () => nextTick(setHeight))
 
 onMounted(() => {
 	$textarea.value?.addEventListener('input', setHeight)

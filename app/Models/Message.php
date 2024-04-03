@@ -35,6 +35,6 @@ class Message extends Model
 
 	public function reactions(): HasMany
 	{
-		return $this->hasMany(User::class, 'message_id');
+		return $this->hasMany(Reaction::class, 'message_id');
 	}
 }

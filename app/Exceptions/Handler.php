@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
@@ -44,5 +45,13 @@ class Handler extends ExceptionHandler
 		$badRequestException->errorMessage = $exception->getMessage();
 
 		return $badRequestException->render();
+	}
+
+	/**
+	 * @throws \App\Exceptions\UnauthenticatedException
+	 */
+	protected function unauthenticated($request, AuthenticationException $exception)
+	{
+		throw new UnauthenticatedException();
 	}
 }

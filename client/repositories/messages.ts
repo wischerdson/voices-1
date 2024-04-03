@@ -3,20 +3,22 @@ import { useGetReq, usePostReq } from '~/composables/use-request'
 import { useUserStore } from '~/store/user'
 import { randomString } from '~/utils/helpers'
 
-export const fetchMessages = (limit: number, offset: number = 0) => {
+export const fetchMessages = async (limit: number, offset: number = 0) => {
+	const user = await useUserStore().getUser()
+
 	return useGetReq<Message[]>('/messages', {
 		query: { limit, offset }
-	})
+	}).sign(user)
 }
 
 export const messagesBatcher = (startOffset: number) => {
 	let offset = startOffset
 
-	const next = (limit: number) => {
+	const next = async (limit: number) => {
 		const _offset = offset
 		offset += limit
 
-		return fetchMessages(limit, _offset).send()
+		return (await fetchMessages(limit, _offset)).send()
 			.catch(e => {
 				offset -= limit
 
@@ -24,12 +26,12 @@ export const messagesBatcher = (startOffset: number) => {
 			})
 	}
 
-	const firstBatch = (limit: number) => {
+	const firstBatch = async (limit: number) => {
 		offset = startOffset + limit
 
-		return fetchMessages(limit, startOffset).asAsyncData('messages', { server: false }).send()
+		return (await fetchMessages(limit, startOffset)).asAsyncData('messages', { server: false }).send()
 			.catch(e => {
-				offset = startOffset
+				offset -= limit
 
 				throw e
 			})

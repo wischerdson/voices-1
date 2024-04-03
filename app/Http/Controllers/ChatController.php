@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Events\MessageReactionsChanged;
 use App\Events\MessageSent;
 use App\Exceptions\MessageNotFoundException;
+use App\Http\Resources\MessageResource;
 use App\Models\Fingerprint;
 use App\Models\Message;
 use App\Models\User;
+use App\Services\Messages;
 use Illuminate\Http\Request;
 
 class ChatController extends Controller
@@ -63,11 +65,14 @@ class ChatController extends Controller
 			'offset' => 'required|numeric',
 		]);
 
-		return Message::query()
+		$messages = Message::query()
+			->with('reactions')
 			->limit($request->limit)
 			->offset($request->offset)
 			->latest()
 			->get();
+
+		return MessageResource::collection($messages);
 	}
 
 	public function sendMessage(Request $request)
@@ -97,19 +102,7 @@ class ChatController extends Controller
 			throw new MessageNotFoundException();
 		}
 
-		/** @var \App\Models\User */
-		$user = $request->user();
-
-		/** @var \App\Models\Reaction */
-		$reaction = $user
-			->reactions()
-			->where('message_id', $message->id)
-			->firstOrNew();
-
-		$reaction->name = $request->reaction_name;
-		$reaction->message_id = $message->id;
-
-		$user->reactions()->save($reaction);
+		Messages::saveReaction($request->user(), $message, $request->reaction_name);
 
 		MessageReactionsChanged::dispatch($message);
 	}
