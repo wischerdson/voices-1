@@ -104,6 +104,17 @@ class ChatController extends Controller
 
 		Messages::saveReaction($request->user(), $message, $request->reaction_name);
 
-		MessageReactionsChanged::dispatch($message);
+		MessageReactionsChanged::dispatch($message->id);
+	}
+
+	public function deleteReaction(Request $request)
+	{
+		$request->validate([
+			'message_id' => 'required'
+		]);
+
+		$request->user()->reactions()->where('message_id', $request->message_id)->delete();
+
+		MessageReactionsChanged::dispatch($request->message_id);
 	}
 }

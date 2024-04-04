@@ -1,7 +1,7 @@
 import { useNuxtApp } from '#app'
 import { defineStore, storeToRefs } from 'pinia'
 import { ref, computed } from 'vue'
-import { messagesBatcher, saveReaction, sendMessage } from '~/repositories/messages'
+import { deleteReaction, messagesBatcher, saveReaction, sendMessage } from '~/repositories/messages'
 import { useUserStore } from './user'
 
 export type Message = {
@@ -102,9 +102,17 @@ export const useMessagesStore = defineStore('messages', () => {
 		messages.value[idx].my_reaction = reactionName
 	}
 
+	const _deleteReaction = async (message: Message) => {
+		await deleteReaction(message)
+
+		const idx = messages.value.findIndex(({ id }) => id === message.id)
+
+		messages.value[idx].my_reaction = null
+	}
+
 	return {
 		messages, groupedMessages, thatsAll, pending,
 		fetch, loadMore, send, isMessageMine,
-		saveReaction: _saveReaction
+		saveReaction: _saveReaction, deleteReaction: _deleteReaction
 	}
 })

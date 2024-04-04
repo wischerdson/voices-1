@@ -31,7 +31,12 @@ const isMine = computed(() => !!messagesStore.isMessageMine(props.message))
 
 const saveReaction = (reactionName: string) => {
 	messageHovered.value = false
-	messagesStore.saveReaction(props.message, reactionName)
+
+	if (props.message.my_reaction === reactionName) {
+		messagesStore.deleteReaction(props.message)
+	} else {
+		messagesStore.saveReaction(props.message, reactionName)
+	}
 }
 
 </script>

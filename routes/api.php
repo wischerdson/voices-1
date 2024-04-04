@@ -9,4 +9,5 @@ Route::middleware('auth')->group(function () {
 	Route::get('/messages', [ChatController::class, 'messages']);
 	Route::post('/messages', [ChatController::class, 'sendMessage']);
 	Route::post('/reactions', [ChatController::class, 'saveReaction']);
+	Route::delete('/reactions', [ChatController::class, 'deleteReaction']);
 });

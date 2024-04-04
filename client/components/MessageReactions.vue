@@ -2,18 +2,29 @@
 	<div class="message-reactions">
 		<TheClickable class="reactions-button absolute z-10 -bottom-3 right-3" @click="showMenu = true">
 			<div class="no-reactions flex" :class="{ show: showMenuButton }">
-				<div class="emoji z-20">🩷</div>
-				<div class="emoji z-10">🤬</div>
-				<div class="emoji z-0">😂</div>
+				<div class="emoji z-20">
+					<img class="w-4 h-4 object-contain" src="/images/emoji/love.png" alt="">
+				</div>
+				<div class="emoji z-10">
+					<img class="w-4 h-4 object-contain" src="/images/emoji/angry.png" alt="">
+				</div>
+				<div class="emoji z-0">
+					<img class="w-4 h-4 object-contain" src="/images/emoji/lol.png" alt="">
+				</div>
 			</div>
 		</TheClickable>
 
 		<ul class="reactions-list flex flex-wrap text-xs gap-1 pt-2 max-w-80" :class="{ mute: showMenuButton || showMenu }">
 			<li
 				class="reaction-item flex items-center rounded-full bg-black px-2 h-6" v-for="(count, reactionName) in message.reactions"
-				:class="{ mine: message.my_reaction === reactionName }"
+				:class="{
+					mine: message.my_reaction === reactionName,
+					hidden: !(reactionName in reactions)
+				}"
 			>
-				<div class="mr-1">{{ reactions[reactionName] }}</div>
+				<div class="mr-1">
+					<img class="w-4 h-4 object-contain" :src="reactions[reactionName]" alt="">
+				</div>
 				<div class="count text-gray-500">{{ count }}</div>
 			</li>
 		</ul>
@@ -24,10 +35,12 @@
 					<TheClickable
 						class="reaction rounded-full flex items-center justify-center w-10 h-10"
 						:class="{ active: reactionName == message.my_reaction }"
-						v-for="(reaction, reactionName) in reactions"
+						v-for="(reactionImg, reactionName) in reactions"
 						@click="selectReaction(reactionName)"
 						:key="`reaction-${reactionName}`"
-					>{{ reaction }}</TheClickable>
+					>
+						<img class="w-6 h-6 object-contain" :src="reactionImg" alt="">
+					</TheClickable>
 				</div>
 			</div>
 		</transition>
@@ -52,18 +65,18 @@ const emit = defineEmits<{
 const showMenu = ref(false)
 
 const reactions: { [key: string]: string } = {
-	like: '👍',
-	dislike: '👎',
-	lol: '😂',
-	sad: '😢',
-	crying: '😭',
-	fuck: '🤬',
-	wow: '🤯',
-	please: '🙏',
-	belissimo: '🤌',
-	fuckyou: '🖕',
-	ok: '✅',
-	love: '🩷'
+	like: '/images/emoji/like.png',
+	dislike: '/images/emoji/dislike.png',
+	lol: '/images/emoji/lol.png',
+	sad: '/images/emoji/sad.png',
+	crying: '/images/emoji/crying.png',
+	angry: '/images/emoji/angry.png',
+	wow: '/images/emoji/wow.png',
+	please: '/images/emoji/please.png',
+	belissimo: '/images/emoji/belissimo.png',
+	fuckyou: '/images/emoji/fuckyou.png',
+	ok: '/images/emoji/ok.png',
+	love: '/images/emoji/love.png',
 }
 
 const selectReaction = (reactionName: string | number) => {
