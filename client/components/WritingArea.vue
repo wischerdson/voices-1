@@ -20,10 +20,14 @@ import { ref } from 'vue'
 import { useMessagesStore } from '~/store/messages'
 import TextArea from '~/components/TextArea.vue'
 import TheClickable from '~/components/Clickable.vue'
+import { watch } from 'vue';
+import { useNuxtApp } from '#app';
 
 const messagesStore = useMessagesStore()
 const message = ref('')
 const sending = ref(false)
+const writing = ref(false)
+const ratchet = useNuxtApp().$ratchet
 
 const handleKeyDown = (event: KeyboardEvent) => {
 	if (event.key === 'Enter' && !event.shiftKey) {
@@ -32,6 +36,16 @@ const handleKeyDown = (event: KeyboardEvent) => {
 		sendMessage()
 	}
 }
+
+let timeout: NodeJS.Timeout
+
+watch(message, () => {
+	writing.value = true
+	clearTimeout(timeout)
+	timeout = setTimeout(() => writing.value = false, 1000)
+})
+
+watch(writing, v => process.client && ratchet.send('writing', +v))
 
 const sendMessage = () => {
 	if (!message.value || sending.value) {

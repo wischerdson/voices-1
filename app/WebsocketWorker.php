@@ -43,8 +43,14 @@ class WebsocketWorker implements MessageComponentInterface
 				$this->sendToCurrentConnection($from, 'online', count($this->clients));
 				break;
 			case 'writing':
-				$this->writing += $jsonMsg->payload ? 1 : -1;
-				$this->sendToAllConnectionsExceptCurrent($from, 'writing', $this->writing);
+				$this->writing = $this->writing + ($jsonMsg->payload ? 1 : -1);
+
+				if (!$this->writing) {
+					$this->sendToAllConnections('writing', 0);
+				} else {
+					$this->sendToAllConnectionsExceptCurrent($from, 'writing', $this->writing);
+				}
+
 				break;
 		}
 	}

@@ -9,7 +9,7 @@
 			</div>
 		</div>
 
-		<div class="writing text-xs text-gray-600 mt-6 sm:mb-4 sm:mt-4" :class="{ not: writing }">
+		<div class="writing text-xs text-gray-600 mt-6 sm:mb-4 sm:mt-4" :class="{ not: !writing }">
 			<span>Кто-то скребется...</span>
 		</div>
 	</div>
@@ -22,9 +22,16 @@ import { timestampToDate } from '~/utils/date'
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMessagesStore } from '~/store/messages'
+import { useNuxtApp } from '#app'
 
-const writing = ref(false)
+const writing = ref(0)
 const { groupedMessages } = storeToRefs(useMessagesStore())
+
+const ratchet = useNuxtApp().$ratchet
+
+process.client && ratchet.listen('writing', (count: number) => {
+	writing.value = count
+})
 
 </script>
 
