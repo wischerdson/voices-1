@@ -6,22 +6,28 @@
 
 <script setup lang="ts">
 
-import { nextTick, ref, onUnmounted, watch } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useMessagesStore } from '~/store/messages'
+import { ref, onUnmounted } from 'vue'
+import { useInfiniteZoneStore } from '~/store/infinite-zone'
+import { onMounted } from 'vue';
+import { watch } from 'vue';
 
 const emit = defineEmits<{
-	(e: 'loadMore', onBeforeUpdate: () => void): void
+	(e: 'loadMore', onBeforeUpdate: () => void, onAfterUpdate: () => void): void
 }>()
 const props = withDefaults(defineProps<{ triggerMargin?: number }>(), { triggerMargin: 500 })
 
+const infiniteZoneStore = useInfiniteZoneStore()
+
 const $scrollable = ref<HTMLElement>()
-let waiting = false
+let waiting = true
+let observer: MutationObserver
 
-const onScroll = () => {
-	const $el = $scrollable.value as HTMLElement
+setTimeout(() => waiting = false, 50)
 
-	if ($el.scrollTop > props.triggerMargin || waiting) {
+watch(() => infiniteZoneStore.scrollTop, scrollTop => {
+	const $track = $scrollable.value as HTMLElement
+
+	if (scrollTop > props.triggerMargin || waiting) {
 		return
 	}
 
@@ -30,25 +36,35 @@ const onScroll = () => {
 	let scrollTopBefore: number, scrollHeightBefore: number
 
 	emit('loadMore', () => {
-		scrollTopBefore = $el.scrollTop
-		scrollHeightBefore = $el.scrollHeight
-
-		nextTick(() => {
-			$el.scrollTo({ top: scrollTopBefore + ($el.scrollHeight - scrollHeightBefore) })
-			setTimeout(() => waiting = false, 100)
-		})
+		scrollTopBefore = $track.scrollTop
+		scrollHeightBefore = $track.scrollHeight
+	}, () => {
+		$track.scrollTo({ top: scrollTopBefore + ($track.scrollHeight - scrollHeightBefore) })
+		setTimeout(() => waiting = false, 1000)
 	})
+})
+
+const heightChanged = () => {
+	infiniteZoneStore.arrivedBottom && infiniteZoneStore.scrollDown(true)
 }
 
-const { messages } = storeToRefs(useMessagesStore())
+onMounted(() => {
+	if ($scrollable.value) {
+		infiniteZoneStore.bindTrackElement($scrollable.value)
+		$scrollable.value.addEventListener('scroll', infiniteZoneStore.scrollListener)
+		infiniteZoneStore.scrollDown()
 
-watch(messages, () => nextTick(() => {
-	$scrollable.value?.scrollTo({ top: $scrollable.value?.scrollHeight })
-	$scrollable.value?.addEventListener('scroll', onScroll)
-}), { once: true })
+		observer = new MutationObserver(heightChanged)
+		observer.observe($scrollable.value as HTMLElement, { attributes: true, childList: true, subtree: true })
+	}
+})
 
 onUnmounted(() => {
-	$scrollable.value?.removeEventListener('scroll', onScroll)
+	if ($scrollable.value) {
+		$scrollable.value.removeEventListener('scroll', infiniteZoneStore.scrollListener)
+	}
+
+	observer.disconnect()
 })
 
 </script>

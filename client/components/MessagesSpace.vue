@@ -1,9 +1,5 @@
 <template>
 	<div class="min-h-full flex flex-col justify-end pt-12">
-		<div class="text-gray-500 mb-10" v-if="pending">
-			Загрузка...
-		</div>
-
 		<div v-for="(messages, timestamp) in groupedMessages" :key="`messages-group-${timestamp}`">
 			<div class="text-center py-4 my-4 sticky top-0 z-10">
 				<div class="bg-gray-300 text-black text-xs px-4 py-1.5 inline-block rounded-full">{{ timestampToDate(timestamp) }}</div>
@@ -28,8 +24,7 @@ import { storeToRefs } from 'pinia'
 import { useMessagesStore } from '~/store/messages'
 
 const writing = ref(false)
-const messagesStore = useMessagesStore()
-const { groupedMessages, pending } = storeToRefs(messagesStore)
+const { groupedMessages } = storeToRefs(useMessagesStore())
 
 </script>
 

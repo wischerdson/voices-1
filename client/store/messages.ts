@@ -1,6 +1,6 @@
 import { useNuxtApp } from '#app'
 import { defineStore, storeToRefs } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { deleteReaction, messagesBatcher, saveReaction, sendMessage } from '~/repositories/messages'
 import { useUserStore } from './user'
 
@@ -44,7 +44,7 @@ export const useMessagesStore = defineStore('messages', () => {
 			}
 		})
 
-	const loadMore = async (beforeStateUpdating: () => void) => {
+	const loadMore = async (beforeStateUpdating: () => void, afterStateUpdating: () => void) => {
 		if (thatsAll.value) {
 			return
 		}
@@ -54,11 +54,13 @@ export const useMessagesStore = defineStore('messages', () => {
 		beforeStateUpdating()
 		data.forEach(m => messages.value.push(m))
 
+		nextTick(afterStateUpdating)
+
 		thatsAll.value = data.length < LIMIT
 	}
 
 	const fetch = async () => {
-		const { data } = await pagination.firstBatch(10)
+		const { data } = await pagination.firstBatch(20)
 
 		messages.value = data.value || []
 		pending.value = false
