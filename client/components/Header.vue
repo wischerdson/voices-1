@@ -39,17 +39,3 @@ process.client && ratchet.onOpen(() => {
 })
 
 </script>
-
-<style scoped lang="scss">
-
-.gradient {
-	&.v-enter-active, &.v-leave-active {
-		transition: opacity .15s ease;
-	}
-
-	&.v-enter-from, &.v-leave-to {
-		opacity: 0;
-	}
-}
-
-</style>
