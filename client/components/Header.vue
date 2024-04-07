@@ -23,19 +23,18 @@ import TheLogo from '~/components/Logo.vue'
 import { ref } from 'vue'
 import { useNuxtApp } from '#app'
 import { useUserStore } from '~/store/user'
-import { storeToRefs } from 'pinia'
-import { watchEffect } from 'vue'
 
 const connectionsCount = ref(0)
-const { user } = storeToRefs(useUserStore())
+const userStore = useUserStore()
 const ratchet = useNuxtApp().$ratchet
 
 process.client && ratchet.listen('online', (connections: number) => {
 	connectionsCount.value = connections
 })
 
-process.client && ratchet.onOpen(() => {
-	watchEffect(() => user.value && ratchet.send('online', user.value.token))
+process.client && ratchet.onOpen(async () => {
+	const user = await userStore.getUser()
+	ratchet.send('online', user.token)
 })
 
 </script>

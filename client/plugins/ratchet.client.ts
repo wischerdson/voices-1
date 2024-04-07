@@ -7,6 +7,7 @@ export default defineNuxtPlugin((app) => {
 	const RATCHET_URL = app.$config.public.ratchetUrl
 
 	let socket: WebSocket
+	let pingPongInterval: NodeJS.Timeout | undefined = undefined
 	const onMessageListeners: { [type: string]: ListenerCb<any>[] } = {}
 	const onOpenListeners: ListenerCb<void>[] = []
 	const onCloseListeners: ListenerCb<void>[] = []
@@ -56,6 +57,9 @@ export default defineNuxtPlugin((app) => {
 
 			socket.onopen = () => onOpenListeners.forEach(l => l())
 			socket.onclose = () => onCloseListeners.forEach(l => l())
+
+			pingPongInterval = setInterval(() => ratchet.send('ping'), 26000)
+			ratchet.onClose(() => clearInterval(pingPongInterval))
 		},
 		close() {
 			socket.close()
