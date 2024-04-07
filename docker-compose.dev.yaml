@@ -6,8 +6,14 @@ services:
       - mariadb
 
   ratchet:
+    ports:
+      - 2008:2008
     depends_on:
       - mariadb
+
+  soketi:
+    ports:
+      - 2007:2007
 
   # queue:
   #   depends_on:

@@ -14,7 +14,7 @@
 			</div>
 		</TheClickable>
 
-		<ul class="reactions-list flex flex-wrap text-xs gap-1 pt-2 max-w-80" v-if="!Array.isArray(message.reactions)" :class="{ mute: showMenuButton || showMenu }">
+		<ul class="reactions-list flex flex-wrap text-xs gap-1 pt-2 max-w-80" v-if="!isEmpty(message.reactions)" :class="{ mute: showMenuButton || showMenu }">
 			<li
 				class="reaction-item flex items-center rounded-full bg-black px-2 h-6" v-for="(count, reactionName) in message.reactions"
 				:class="{
@@ -50,6 +50,7 @@
 <script setup lang="ts">
 
 import type { Message } from '~/store/messages'
+import { isEmpty } from 'lodash-es'
 import { ref } from 'vue'
 import TheClickable from '~/components/Clickable.vue'
 

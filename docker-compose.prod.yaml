@@ -1,0 +1,51 @@
+# For production purposes
+
+networks:
+  proxy-manager:
+    driver: bridge
+    name: nginx-proxy-manager
+    external: true
+
+  database:
+    driver: bridge
+    name: database
+    external: true
+
+services:
+  php:
+    restart: unless-stopped
+    networks:
+      - database
+      - default
+
+  ratchet:
+    restart: unless-stopped
+    networks:
+      - database
+      - default
+
+  soketi:
+    restart: unless-stopped
+
+  # queue:
+  #   restart: unless-stopped
+  #   networks:
+  #     - database
+  #     - default
+  #   command: sh -c "php artisan queue:work"
+
+  nginx:
+    restart: unless-stopped
+    volumes:
+      - ./.docker/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - proxy-manager
+      - default
+
+  nodejs:
+    build: ./.docker/nodejs
+    restart: unless-stopped
+    command: sh -c "node client/.output/server/index.mjs"
+    volumes:
+      - .:/app
+    working_dir: /app

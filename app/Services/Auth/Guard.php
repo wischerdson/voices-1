@@ -48,6 +48,11 @@ class Guard implements AuthGuard
 		return true;
 	}
 
+	public function getUser(): Authenticatable | null
+	{
+		return $this->user;
+	}
+
 	public function setUser(Authenticatable $user)
 	{
 		$this->user = $user;

@@ -1,9 +1,17 @@
 import type { User } from '~/store/user'
-import { useGetReq } from '#imports'
-import { useFingerprints } from '~/composables/use-fingerprint'
+import { useGetReq, useLocalStorage } from '#imports'
 
 export const fetchUser = async () => {
-	const { fingerprints } = await useFingerprints()
+	const storage = useLocalStorage<string>('user_token')
+	const req = useGetReq<User>('/user')
 
-	return useGetReq<User>('/user', { query: { fingerprints: fingerprints.join(',') } }).send()
+	if (storage.value) {
+		req.setBearerToken(storage.value)
+	}
+
+	const user = await req.send()
+
+	storage.value = `${user.id}:${user.token}`
+
+	return user
 }

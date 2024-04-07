@@ -14,15 +14,10 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    ports:
-      - 2008:2008
     command: sh -c "php artisan ws:listen"
 
   soketi:
     image: quay.io/soketi/soketi:0.34-16-distroless
-    ports:
-      - 6001:6001
-      - 2007:2007
     command: /app/bin/server.js start --config=/config.json
     volumes:
       - ./.docker/soketi/config.json:/config.json:ro
@@ -41,6 +36,6 @@ services:
           - api.nginx
 
   redis:
-    image: redis:7.0.9-alpine3.17
+    image: redis:7-alpine3.19
     volumes:
       - ./.docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro

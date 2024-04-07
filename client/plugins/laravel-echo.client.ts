@@ -9,7 +9,7 @@ export default defineNuxtPlugin(app => {
 		forceTLS: false,
 		disableStats: true,
 		cluster: '',
-		enabledTransports: ['ws']
+		enabledTransports: ['ws', 'wss']
 	})
 
 	const echo = new Echo({

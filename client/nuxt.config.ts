@@ -25,8 +25,7 @@ export default defineNuxtConfig({
 			pusherHost: process.env.PUSHER_HOST,
 			pusherPort: process.env.PUSHER_PORT,
 
-			ratchetHost: process.env.RATCHET_HOST,
-			ratchetPort: process.env.RATCHET_PORT,
+			ratchetUrl: process.env.RATCHET_URL
 		},
 		apiBaseUrl: process.env.SERVER_API_URL
 	},

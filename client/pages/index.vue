@@ -2,10 +2,10 @@
 	<div class="w-full flex-1 flex flex-col">
 		<div class="flex-1 relative">
 			<transition>
-				<div class="gradient absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-black to-transparent z-10 pointer-events-none" v-if="!infiniteZoneStore.arrivedTop"></div>
+				<div class="gradient top absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-black to-transparent z-10 pointer-events-none" v-if="!infiniteZoneStore.arrivedTop"></div>
 			</transition>
 			<transition>
-				<div class="gradient absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-black to-transparent z-10 pointer-events-none" v-if="!infiniteZoneStore.arrivedBottom"></div>
+				<div class="gradient bottom absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-black to-transparent z-10 pointer-events-none" v-if="!infiniteZoneStore.arrivedBottom"></div>
 			</transition>
 			<InfiniteScrollZone class="absolute inset-0" @loadMore="loadMore" v-if="showInfiniteScrollZone">
 				<MessagesSpace class="max-w-3xl mx-auto px-4" />

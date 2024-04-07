@@ -6,54 +6,22 @@ use App\Events\MessageReactionsChanged;
 use App\Events\MessageSent;
 use App\Exceptions\MessageNotFoundException;
 use App\Http\Resources\MessageResource;
-use App\Models\Fingerprint;
 use App\Models\Message;
 use App\Models\User;
 use App\Services\Messages;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
-	public function user(Request $request)
+	public function user()
 	{
-		/**
-		 * Пришедший список отпечатков в виде строке, разделенных запятой, превращаем
-		 * в коллекцию.
-		 */
-		$fingerprintsFromRequest = collect(
-			explode(',', $request->fingerprints)
-		);
-
-		/**
-		 * Пробуем найти в базе данных хотя бы одно совпадение, чтобы идентифицировать пользователя.
-		 *
-		 * @var \Illuminate\Database\Eloquent\Collection
-		 */
-		$foundFingerprints = Fingerprint::query()
-			->whereIn('fingerprint', $fingerprintsFromRequest)
-			->with('user')
-			->get();
-
-		/**
-		 * Если из всего списка отпечатков не нашлось ни одного совпадения, то создаем
-		 * нового пользователя.
-		 *
-		 * @var \App\Models\User $user
-		 */
-		if ($foundFingerprints->isEmpty() || !$user = $foundFingerprints->first()->user) {
-			$user = new User();
-			$user->save();
+		if ($user = Auth::getUser()) {
+			return $user;
 		}
 
-		/**
-		 * Все отпечатки, пришедшие из запроса, но отсутствующие в базе нужно привязать к
-		 * пользователю.
-		 */
-		$missingFingerprints = $fingerprintsFromRequest
-			->diff($foundFingerprints->pluck('fingerprint'))
-			->map(fn ($fp) => new Fingerprint(['fingerprint' => $fp]));
-
-		$user->fingerprints()->saveMany($missingFingerprints);
+		$user = new User();
+		$user->save();
 
 		return $user;
 	}

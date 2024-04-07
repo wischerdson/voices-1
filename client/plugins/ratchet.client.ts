@@ -4,8 +4,7 @@ import { defineNuxtPlugin } from '#imports'
 type ListenerCb<T> = (payload: T) => void
 
 export default defineNuxtPlugin((app) => {
-	const HOST = app.$config.public.ratchetHost
-	const PORT = app.$config.public.ratchetPort
+	const RATCHET_URL = app.$config.public.ratchetUrl
 
 	let socket: WebSocket
 	const onMessageListeners: { [type: string]: ListenerCb<any>[] } = {}
@@ -38,7 +37,7 @@ export default defineNuxtPlugin((app) => {
 				return
 			}
 
-			socket = new WebSocket(`ws://${HOST}:${PORT}/client/${userId}:${userToken}`)
+			socket = new WebSocket(`${RATCHET_URL}/client/${userId}:${userToken}`)
 
 			socket.onerror = error => {
 				console.error('Какое-то говно в вебсокетах, чек: ', error)
