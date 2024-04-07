@@ -54,9 +54,15 @@ const sendMessage = () => {
 
 	sending.value = true
 
-	messagesStore.send(message.value)
-		.then(() => {
-			message.value = ''
+	const textBackup = message.value
+
+	message.value = ''
+
+	messagesStore.send(textBackup)
+		.catch(e => {
+			message.value = textBackup
+
+			throw new Error('Произошла ошибка при отправке сообщения, чек: ', e)
 		})
 		.finally(() => {
 			sending.value = false

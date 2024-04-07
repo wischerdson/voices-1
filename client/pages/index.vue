@@ -51,6 +51,8 @@ const showInfiniteScrollZone = computed(() => !messagesPending.value)
 
 onMounted(() => {
 	messagesStore.fetch()
+	messagesStore.initMessageSentSound(new Audio('/sounds/message-sent.wav'))
+	messagesStore.initMessageRecievedSound(new Audio('/sounds/message-recieved.wav'))
 })
 
 </script>
