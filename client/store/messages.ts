@@ -1,6 +1,6 @@
 import { useNuxtApp } from '#app'
 import { defineStore, storeToRefs } from 'pinia'
-import { ref, computed, nextTick } from 'vue'
+import { ref, nextTick } from 'vue'
 import { deleteReaction, messagesBatcher, saveReaction, sendMessage } from '~/repositories/messages'
 import { useUserStore, type User } from './user'
 
@@ -104,28 +104,6 @@ export const useMessagesStore = defineStore('messages', () => {
 		return request
 	}
 
-	const groupedMessages = computed(() => {
-		const localeDateToTimestampMap: { [localeDate: string]: number } = {}
-
-		return messages.value.reduce<{ [timestamp: number]: Message[] }>((groupedMessages, message) => {
-			const localDate = new Date(message.created_at*1000).toLocaleDateString()
-
-			if (!(localDate in localeDateToTimestampMap)) {
-				localeDateToTimestampMap[localDate] = message.created_at
-			}
-
-			const timestamp = localeDateToTimestampMap[localDate]
-
-			if (!(timestamp in groupedMessages)) {
-				groupedMessages[timestamp] = []
-			}
-
-			groupedMessages[timestamp].unshift(message)
-
-			return groupedMessages
-		}, {})
-	})
-
 	const isMessageMine = ({ user_id }: Message) => user.value && +user.value.id === +user_id
 
 	const _saveReaction = (message: Message, reactionName: string) => {
@@ -154,7 +132,7 @@ export const useMessagesStore = defineStore('messages', () => {
 	}
 
 	return {
-		messages, groupedMessages, thatsAll, pending,
+		messages, thatsAll, pending,
 		fetch, loadMore, send, isMessageMine,
 		saveReaction: _saveReaction, deleteReaction: _deleteReaction,
 		initMessageRecievedSound, initMessageSentSound

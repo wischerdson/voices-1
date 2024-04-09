@@ -1,5 +1,5 @@
 <template>
-	<div class="overflow-y-scroll" ref="$scrollable">
+	<div>
 		<slot></slot>
 	</div>
 </template>
@@ -14,57 +14,62 @@ import { watch } from 'vue';
 const emit = defineEmits<{
 	(e: 'loadMore', onBeforeUpdate: () => void, onAfterUpdate: () => void): void
 }>()
-const props = withDefaults(defineProps<{ triggerMargin?: number }>(), { triggerMargin: 500 })
 
-const infiniteZoneStore = useInfiniteZoneStore()
-
-const $scrollable = ref<HTMLElement>()
-let waiting = true
-let observer: MutationObserver
-
-setTimeout(() => waiting = false, 50)
-
-watch(() => infiniteZoneStore.scrollTop, scrollTop => {
-	const $track = $scrollable.value as HTMLElement
-
-	if (scrollTop > props.triggerMargin || waiting) {
-		return
-	}
-
-	waiting = true
-
-	let scrollTopBefore: number, scrollHeightBefore: number
-
-	emit('loadMore', () => {
-		scrollTopBefore = $track.scrollTop
-		scrollHeightBefore = $track.scrollHeight
-	}, () => {
-		$track.scrollTo({ top: scrollTopBefore + ($track.scrollHeight - scrollHeightBefore) })
-		setTimeout(() => waiting = false, 1000)
-	})
-})
-
-const heightChanged = () => {
-	infiniteZoneStore.arrivedBottom && infiniteZoneStore.scrollDown(true)
-}
+const TRIGGER_MARGIN = 500
 
 onMounted(() => {
-	if ($scrollable.value) {
-		infiniteZoneStore.bindTrackElement($scrollable.value)
-		$scrollable.value.addEventListener('scroll', infiniteZoneStore.scrollListener)
-		infiniteZoneStore.scrollDown()
-
-		observer = new MutationObserver(heightChanged)
-		observer.observe($scrollable.value as HTMLElement, { attributes: true, childList: true, subtree: true })
-	}
+	console.log(window.document.body)
 })
 
-onUnmounted(() => {
-	if ($scrollable.value) {
-		$scrollable.value.removeEventListener('scroll', infiniteZoneStore.scrollListener)
-	}
+// const infiniteZoneStore = useInfiniteZoneStore()
 
-	observer.disconnect()
-})
+// const $scrollable = ref<HTMLElement>()
+// let waiting = true
+// let observer: MutationObserver
+
+// watch(() => infiniteZoneStore.scrollTop, scrollTop => {
+// 	const $track = $scrollable.value as HTMLElement
+
+// 	if (scrollTop > props.triggerMargin || waiting) {
+// 		return
+// 	}
+
+// 	waiting = true
+
+// 	let scrollTopBefore: number, scrollHeightBefore: number
+
+// 	emit('loadMore', () => {
+// 		scrollTopBefore = document.body.scrollTop
+// 		scrollHeightBefore = $track.scrollHeight
+// 	}, () => {
+// 		window.document.body.scrollTo({ top: scrollTopBefore + ($track.scrollHeight - scrollHeightBefore) })
+// 		setTimeout(() => waiting = false, 1000)
+// 	})
+// })
+
+// const heightChanged = () => {
+// 	infiniteZoneStore.arrivedBottom && infiniteZoneStore.scrollDown(true)
+// }
+
+// onMounted(() => {
+// 	$scrollable.value = window.document.body
+
+// 	if ($scrollable.value) {
+// 		infiniteZoneStore.bindTrackElement($scrollable.value)
+// 		window.document.addEventListener('scroll', infiniteZoneStore.scrollListener)
+// 		infiniteZoneStore.scrollDown()
+
+// 		observer = new MutationObserver(heightChanged)
+// 		observer.observe($scrollable.value as HTMLElement, { attributes: true, childList: true, subtree: true })
+// 	}
+// })
+
+// onUnmounted(() => {
+// 	if ($scrollable.value) {
+// 		$scrollable.value.removeEventListener('scroll', infiniteZoneStore.scrollListener)
+// 	}
+
+// 	observer.disconnect()
+// })
 
 </script>

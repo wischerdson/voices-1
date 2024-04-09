@@ -1,52 +1,55 @@
 import { defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 
 export const useInfiniteZoneStore = defineStore('infinite-zone', () => {
+	const onReadyCallbacks: (($track: HTMLElement) => void)[] = []
 	const $track = ref<HTMLElement>()
-	const onReadyCallbacks: (() => void)[] = []
 	const scrollTop = ref(0)
+	const scrollBottom = ref(0)
+	const arrivedTop = ref(false)
+	const arrivedBottom = ref(true)
 
-	const scrollBottom = computed(() => {
-		if (!$track.value) {
-			return 0
-		}
-
-		return $track.value.scrollHeight - (scrollTop.value + $track.value.getBoundingClientRect().height)
-	})
-
-	const arrivedTop = computed(() => !scrollTop.value)
-	const arrivedBottom = computed(() => !scrollBottom.value)
-
-	const onReady = (cb: () => void) => {
+	const onReady = (cb: ($track: HTMLElement) => void) => {
 		if ($track.value !== undefined) {
-			return cb()
+			return cb($track.value)
 		}
 
 		onReadyCallbacks.push(cb)
 	}
 
-	const scrollListener = () => scrollTop.value = ($track.value as HTMLElement).scrollTop
+	const scrollListener = () => {
+		if (!$track.value) {
+			throw new Error('Track element is not bind')
+		}
 
-	const scrollDown = (smooth: boolean = false) => onReady(() => {
-		const _$track = $track.value as HTMLElement
+		scrollTop.value = $track.value.scrollTop
+		scrollBottom.value = $track.value.scrollHeight - (scrollTop.value + $track.value.getBoundingClientRect().height)
+		arrivedTop.value = !scrollTop.value
+		arrivedBottom.value = !scrollBottom.value
+	}
 
-		_$track.scrollTo({
-			top: _$track.scrollHeight,
-			behavior: smooth ? 'smooth' : 'instant'
-		})
+	const scrollTo = (scrollTop: number, smooth: boolean = false) => onReady($track => {
+		const opts: ScrollToOptions = { top: scrollTop, behavior: smooth ? 'smooth' : 'instant' }
+		const $_track = $track === window.document.body ? window : $track
+
+		$_track.scrollTo(opts)
+	})
+
+	const scrollDown = (smooth: boolean = false) => onReady($track => {
+		scrollTo($track.scrollHeight, smooth)
 	})
 
 	const bindTrackElement = ($element: HTMLElement) => $track.value = $element
 
-	const stopWatchHandler = watch($track, $v => {
-		if ($v !== undefined) {
-			onReadyCallbacks.forEach(cb => cb())
+	const stopWatchHandler = watch($track, $track => {
+		if ($track !== undefined) {
+			onReadyCallbacks.forEach(cb => cb($track as HTMLElement))
 			stopWatchHandler()
 		}
 	})
 
 	return {
-		scrollTop, scrollBottom, arrivedTop, arrivedBottom,
-		scrollDown, bindTrackElement, onReady, scrollListener,
+		$track, scrollTop, scrollBottom, arrivedTop, arrivedBottom,
+		scrollTo, scrollDown, bindTrackElement, onReady, scrollListener,
 	}
 })

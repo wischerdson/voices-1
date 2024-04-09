@@ -1,5 +1,5 @@
 <template>
-	<div class="py-6 sm:py-3 max-w-3xl mx-auto flex space-x-4 items-end">
+	<div class="bg-black p-4 sm:py-3 max-w-3xl mx-auto flex space-x-4 items-end">
 		<TextArea
 			class="flex-1 resize-none max-h-72 bg-gray-900 px-5 py-2.5 leading-normal h-[46px] rounded-lg"
 			:allow-shrink="true"
@@ -20,8 +20,8 @@ import { ref } from 'vue'
 import { useMessagesStore } from '~/store/messages'
 import TextArea from '~/components/TextArea.vue'
 import TheClickable from '~/components/Clickable.vue'
-import { watch } from 'vue';
-import { useNuxtApp } from '#app';
+import { watch } from 'vue'
+import { useNuxtApp } from '#app'
 
 const messagesStore = useMessagesStore()
 const message = ref('')

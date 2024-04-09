@@ -1,12 +1,7 @@
 <template>
-	<div class="min-h-full flex flex-col justify-end pt-12">
-		<div v-for="(messages, timestamp) in groupedMessages" :key="`messages-group-${timestamp}`">
-			<div class="text-center py-4 my-4 sticky top-0 z-10">
-				<div class="bg-gray-300 text-black text-xs px-4 py-1.5 inline-block rounded-full">{{ timestampToDate(timestamp) }}</div>
-			</div>
-			<div class="space-y-6">
-				<TheMessage :message="message" v-for="message in messages" :key="`message-${message.id}`" />
-			</div>
+	<div class="min-h-full flex flex-col justify-end">
+		<div ref="messageList">
+			<MessageList />
 		</div>
 
 		<div class="writing text-xs text-gray-600 mt-6 sm:mb-4 sm:mt-4" :class="{ not: !writing }">
@@ -17,20 +12,55 @@
 
 <script setup lang="ts">
 
-import TheMessage from '~/components/Message.vue'
-import { timestampToDate } from '~/utils/date'
-import { ref } from 'vue'
-import { storeToRefs } from 'pinia'
+import MessageList from '~/components/MessageList.vue'
+import { onMounted, ref, watch } from 'vue'
 import { useMessagesStore } from '~/store/messages'
 import { useNuxtApp } from '#app'
+import { useInfiniteZoneStore } from '~/store/infinite-zone'
+
+const TRIGGER_MARGIN = 500
+const messagesStore = useMessagesStore()
+const infiniteZoneStore = useInfiniteZoneStore()
 
 const writing = ref(0)
-const { groupedMessages } = storeToRefs(useMessagesStore())
-
+const messageList = ref<HTMLElement>()
 const ratchet = useNuxtApp().$ratchet
 
-process.client && ratchet.listen('writing', (count: number) => {
-	writing.value = count
+let observer: MutationObserver
+let isMoreLoaderLocked = false
+
+watch(() => infiniteZoneStore.scrollTop, scrollTop => {
+	if (scrollTop > TRIGGER_MARGIN || isMoreLoaderLocked) {
+		return
+	}
+
+	const $track = infiniteZoneStore.$track as HTMLElement
+
+	isMoreLoaderLocked = true
+
+	let scrollTopBefore: number, scrollHeightBefore: number
+
+	messagesStore.loadMore(() => {
+		scrollTopBefore = $track.scrollTop
+		scrollHeightBefore = $track.scrollHeight
+	}, () => {
+		infiniteZoneStore.scrollTo(scrollTopBefore + $track.scrollHeight - scrollHeightBefore, false)
+		isMoreLoaderLocked = false
+	})
+})
+
+onMounted(() => {
+	ratchet.listen('writing', (count: number) => {
+		writing.value = count
+	})
+
+	infiniteZoneStore.bindTrackElement(window.document.documentElement)
+	infiniteZoneStore.scrollDown()
+
+	window.document.addEventListener('scroll', infiniteZoneStore.scrollListener)
+
+	observer = new MutationObserver(() => infiniteZoneStore.arrivedBottom && infiniteZoneStore.scrollDown(true))
+	observer.observe(messageList.value as HTMLElement, { childList: true })
 })
 
 </script>

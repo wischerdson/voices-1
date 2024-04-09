@@ -1,5 +1,5 @@
 <template>
-	<div class="header bg-black">
+	<div class="header bg-black fixed inset-x-0 top-0 z-20">
 		<div class="p-4 flex justify-between items-center max-w-3xl mx-auto">
 			<TheLogo />
 			<div class="h-full flex items-center">
@@ -11,9 +11,6 @@
 				</div>
 			</div>
 		</div>
-		<!-- <transition>
-			<div class="gradient absolute top-full inset-x-0 h-20 bg-gradient-to-b from-black to-transparent z-10 pointer-events-none" v-if="!arrivedState.top"></div>
-		</transition> -->
 	</div>
 </template>
 
@@ -38,3 +35,14 @@ process.client && ratchet.onOpen(async () => {
 })
 
 </script>
+
+<style scoped lang="scss">
+
+@supports (backdrop-filter: blur(18px)) {
+	.header {
+		background-color: rgba(#000, .5);
+		backdrop-filter: blur(18px) saturate(1.5);
+	}
+}
+
+</style>

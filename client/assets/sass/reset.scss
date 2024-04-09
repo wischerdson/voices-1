@@ -9,10 +9,7 @@ html {
 	line-height: 1;
 	-webkit-text-size-adjust: 100%;
 	min-height: 100%;
-}
-
-html:focus-within {
-	// scroll-behavior: smooth;
+	overflow: auto;
 }
 
 body {
