@@ -16,7 +16,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useMessagesStore } from '~/store/messages'
 import { useInfiniteZoneStore } from '~/store/infinite-zone'
 
-const TRIGGER_MARGIN = 500
+const TRIGGER_MARGIN = 1000
 const messagesStore = useMessagesStore()
 const infiniteZoneStore = useInfiniteZoneStore()
 const messageList = ref<HTMLElement>()
@@ -40,7 +40,7 @@ watch(() => infiniteZoneStore.scrollTop, scrollTop => {
 		scrollHeightBefore = $track.scrollHeight
 	}, () => {
 		infiniteZoneStore.scrollTo(scrollTopBefore + $track.scrollHeight - scrollHeightBefore, false)
-		isMoreLoaderLocked = false
+		setTimeout(() => isMoreLoaderLocked = false, 1000)
 	})
 })
 
