@@ -4,27 +4,22 @@
 			<MessageList />
 		</div>
 
-		<div class="writing text-xs text-gray-600 mt-6 sm:mb-4 sm:mt-4" :class="{ not: !writing }">
-			<span>Кто-то скребется...</span>
-		</div>
+		<WritingStatus />
 	</div>
 </template>
 
 <script setup lang="ts">
 
 import MessageList from '~/components/MessageList.vue'
+import WritingStatus from '~/components/WritingStatus.vue'
 import { onMounted, ref, watch } from 'vue'
 import { useMessagesStore } from '~/store/messages'
-import { useNuxtApp } from '#app'
 import { useInfiniteZoneStore } from '~/store/infinite-zone'
 
 const TRIGGER_MARGIN = 500
 const messagesStore = useMessagesStore()
 const infiniteZoneStore = useInfiniteZoneStore()
-
-const writing = ref(0)
 const messageList = ref<HTMLElement>()
-const ratchet = useNuxtApp().$ratchet
 
 let observer: MutationObserver
 let isMoreLoaderLocked = false
@@ -50,10 +45,6 @@ watch(() => infiniteZoneStore.scrollTop, scrollTop => {
 })
 
 onMounted(() => {
-	ratchet.listen('writing', (count: number) => {
-		writing.value = count
-	})
-
 	infiniteZoneStore.bindTrackElement(window.document.documentElement)
 	infiniteZoneStore.scrollDown()
 
@@ -64,33 +55,3 @@ onMounted(() => {
 })
 
 </script>
-
-<style lang="scss" scoped>
-
-.writing {
-	transition: opacity .2s ease;
-
-	span {
-		animation: pulse_scratching 1s ease-in-out infinite;
-
-		@keyframes pulse_scratching {
-			from {
-				opacity: 1;
-			}
-			50% {
-				opacity: .7;
-			}
-			to {
-				opacity: 1;
-			}
-		}
-	}
-
-	&.not {
-		opacity: 0;
-		pointer-events: none;
-		user-select: none;
-	}
-}
-
-</style>

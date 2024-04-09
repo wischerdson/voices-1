@@ -40,7 +40,7 @@ process.client && ratchet.onOpen(async () => {
 
 @supports (backdrop-filter: blur(18px)) {
 	.header {
-		background-color: rgba(#000, .5);
+		background-color: rgba(#000, .6);
 		backdrop-filter: blur(18px) saturate(1.5);
 	}
 }

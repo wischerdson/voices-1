@@ -30,7 +30,7 @@
 		</ul>
 
 		<transition>
-			<div class="reactions-menu absolute w-[246px] top-full -mt-3 right-3 z-30" v-click-outside="() => showMenu = false" v-if="showMenu">
+			<div class="reactions-menu absolute w-[246px] top-full -mt-3 right-3 z-40" v-click-outside="() => showMenu = false" v-if="showMenu">
 				<div class="flex flex-wrap text-2xl bg-gray-950 p-0.5 rounded-xl">
 					<TheClickable
 						class="reaction rounded-full flex items-center justify-center w-10 h-10"

@@ -27,12 +27,12 @@ services:
   soketi:
     restart: unless-stopped
 
-  # queue:
-  #   restart: unless-stopped
-  #   networks:
-  #     - database
-  #     - default
-  #   command: sh -c "php artisan queue:work"
+  queue:
+    restart: unless-stopped
+    networks:
+      - database
+      - default
+    command: sh -c "php artisan queue:work"
 
   nginx:
     restart: unless-stopped

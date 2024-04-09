@@ -3,6 +3,7 @@ import { defineStore, storeToRefs } from 'pinia'
 import { ref, nextTick } from 'vue'
 import { deleteReaction, messagesBatcher, saveReaction, sendMessage } from '~/repositories/messages'
 import { useUserStore, type User } from './user'
+import { isEmpty } from 'lodash-es'
 
 export type Message = {
 	id?: number
@@ -106,10 +107,38 @@ export const useMessagesStore = defineStore('messages', () => {
 
 	const isMessageMine = ({ user_id }: Message) => user.value && +user.value.id === +user_id
 
+	const addReactionLocally = (messageIdx: number, reaction: string) => {
+		messages.value[messageIdx].my_reaction = reaction
+
+		if (reaction in messages.value[messageIdx].reactions) {
+			messages.value[messageIdx].reactions[reaction]++
+		} else {
+			if (isEmpty(messages.value[messageIdx].reactions)) {
+				messages.value[messageIdx].reactions = { [reaction]: 1 }
+			} else {
+				messages.value[messageIdx].reactions[reaction] = 1
+			}
+		}
+	}
+
+	const deleteReactionLocally = (messageIdx: number) => {
+		const myReaction = messages.value[messageIdx].my_reaction
+
+		if (myReaction) {
+			messages.value[messageIdx].reactions[myReaction]--
+
+			if (messages.value[messageIdx].reactions[myReaction] <= 0) {
+				delete messages.value[messageIdx].reactions[myReaction]
+			}
+		}
+
+		messages.value[messageIdx].my_reaction = null
+	}
+
 	const _saveReaction = (message: Message, reactionName: string) => {
 		const idx = messages.value.findIndex(({ id }) => id === message.id)
 
-		messages.value[idx].my_reaction = reactionName
+		addReactionLocally(idx, reactionName)
 
 		return saveReaction(message, reactionName)
 	}
@@ -117,7 +146,7 @@ export const useMessagesStore = defineStore('messages', () => {
 	const _deleteReaction = (message: Message) => {
 		const idx = messages.value.findIndex(({ id }) => id === message.id)
 
-		messages.value[idx].my_reaction = null
+		deleteReactionLocally(idx)
 
 		return deleteReaction(message)
 	}
@@ -126,6 +155,7 @@ export const useMessagesStore = defineStore('messages', () => {
 		sound.volume = .5
 		messageRecievedSound = sound
 	}
+
 	const initMessageSentSound = (sound: HTMLAudioElement) => {
 		sound.volume = .5
 		messageSentSound = sound

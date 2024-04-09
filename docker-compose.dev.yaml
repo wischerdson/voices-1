@@ -15,10 +15,10 @@ services:
     ports:
       - 2007:2007
 
-  # queue:
-  #   depends_on:
-  #     - mariadb
-  #   command: sh -c "php artisan queue:work"
+  queue:
+    depends_on:
+      - mariadb
+    command: sh -c "php artisan queue:work"
 
   nginx:
     volumes:

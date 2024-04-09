@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, ref, watch, watchEffect } from 'vue'
+import { ref, watch } from 'vue'
 
 export const useInfiniteZoneStore = defineStore('infinite-zone', () => {
 	const onReadyCallbacks: (($track: HTMLElement) => void)[] = []
@@ -23,7 +23,7 @@ export const useInfiniteZoneStore = defineStore('infinite-zone', () => {
 		}
 
 		scrollTop.value = $track.value.scrollTop
-		scrollBottom.value = $track.value.scrollHeight - (scrollTop.value + $track.value.getBoundingClientRect().height)
+		scrollBottom.value = $track.value.getBoundingClientRect().bottom - window.innerHeight
 		arrivedTop.value = !scrollTop.value
 		arrivedBottom.value = !scrollBottom.value
 	}
