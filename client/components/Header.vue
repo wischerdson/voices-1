@@ -3,7 +3,8 @@
 		<div class="p-4 flex justify-between items-center max-w-3xl mx-auto">
 			<TheLogo />
 			<div class="h-full flex items-center">
-				<div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+				<div class="w-2 h-2 bg-green-500 rounded-full mr-2" v-if="connected"></div>
+				<div class="w-2 h-2 bg-red-500 rounded-full mr-2" v-else></div>
 				<div class="text-sm">
 					<span class="text-gray-600">Онлайн: </span>
 					<span v-if="connectionsCount">{{ connectionsCount }}</span>
@@ -23,6 +24,8 @@ import { useUserStore } from '~/store/user'
 
 const connectionsCount = ref(0)
 const userStore = useUserStore()
+const connected = ref(false)
+
 const ratchet = useNuxtApp().$ratchet
 
 process.client && ratchet.listen('online', (connections: number) => {
@@ -30,8 +33,14 @@ process.client && ratchet.listen('online', (connections: number) => {
 })
 
 process.client && ratchet.onOpen(async () => {
+	connected.value = true
+
 	const user = await userStore.getUser()
 	ratchet.send('online', user.token)
+})
+
+process.client && ratchet.onClose(() => {
+	connected.value = false
 })
 
 </script>

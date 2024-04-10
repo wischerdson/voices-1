@@ -20,7 +20,7 @@ export const useAfkDetection = () => singletonClientOnly('afk-composable', () =>
 	window.document.addEventListener('focus', fresh)
 	window.document.addEventListener('mousemove', fresh)
 	window.document.addEventListener('click', fresh)
-	window.document.addEventListener('touchstart', fresh)
+	window.document.addEventListener('scroll', fresh)
 
 	return isAfk
 })
