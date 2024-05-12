@@ -1,6 +1,10 @@
 
 const getMonths = () => 'января,февраля,марта,апреля,мая,июня,июля,августа,сентября,октября,ноября,декабря'.split(',')
 
+const areDatesEqual = (date1: Date, date2: Date) => {
+	return date1.toDateString() === date2.toDateString()
+}
+
 export const timestampToTime = (timestamp: number) => {
 	const date = new Date(timestamp * 1000)
 
@@ -16,14 +20,14 @@ export const timestampToDate = (timestamp: number) => {
 	const date = new Date(timestamp * 1000)
 	const today = new Date()
 
-	if (date.getDate() === today.getDate()) {
+	if (areDatesEqual(today, date)) {
 		return `Сегодня`
 	}
 
 	const yesterday = new Date()
 	yesterday.setDate(today.getDate() - 1)
 
-	if (yesterday.getDate() === date.getDate()) {
+	if (areDatesEqual(yesterday, date)) {
 		return `Вчера`
 	}
 
