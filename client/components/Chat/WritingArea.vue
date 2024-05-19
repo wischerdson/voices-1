@@ -22,6 +22,7 @@ import TextArea from '~/components/TextArea.vue'
 import TheClickable from '~/components/Clickable.vue'
 import { watch } from 'vue'
 import { useNuxtApp } from '#app'
+import isMobile from 'is-mobile'
 
 const messagesStore = useMessagesStore()
 const message = ref('')
@@ -30,7 +31,7 @@ const writing = ref(false)
 const ratchet = useNuxtApp().$ratchet
 
 const handleKeyDown = (event: KeyboardEvent) => {
-	if (event.key === 'Enter' && !event.shiftKey) {
+	if (event.key === 'Enter' && !event.shiftKey && !isMobile()) {
 		event.preventDefault()
 
 		sendMessage()

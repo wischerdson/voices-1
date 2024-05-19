@@ -6,24 +6,44 @@ use App\Events\MessageReactionsChanged;
 use App\Events\MessageSent;
 use App\Exceptions\MessageNotFoundException;
 use App\Http\Resources\MessageResource;
+use App\Http\Resources\UserResource;
+use App\Models\Chamber;
+use App\Models\ChamberParticipant;
 use App\Models\Message;
 use App\Models\User;
 use App\Services\Messages;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
-	public function user()
+	public function user(Request $request)
 	{
-		if ($user = Auth::getUser()) {
-			return $user;
+		/** @var \App\Models\User $user */
+		if (!$user = Auth::getUser()) {
+			$user = new User();
+			$user->save();
 		}
 
-		$user = new User();
-		$user->save();
+		if (!$chamber = Chamber::query()->where('code', $request->chamber)->first()) {
+			$chamber = new Chamber(['code' => $request->chamber]);
+			$chamber->save();
+		}
 
-		return $user;
+		$chamberParticipant = ChamberParticipant::query()
+			->where('user_id', $user->id)
+			->where('chamber_id', $chamber->id)
+			->first();
+
+		if (!$chamberParticipant) {
+			$chamberParticipant = new ChamberParticipant();
+			$chamberParticipant->user_id = $user->id;
+			$chamber->participants()->save($chamberParticipant);
+		}
+
+		return new UserResource($user, $chamberParticipant);
 	}
 
 	public function messages(Request $request)
@@ -34,7 +54,10 @@ class ChatController extends Controller
 		]);
 
 		$messages = Message::query()
-			->with('reactions')
+			->with('reactions', 'chamberParticipant')
+			->whereHas('chamber', function (Builder $query) use ($request) {
+				$query->where('code', $request->chamber);
+			})
 			->limit($request->limit)
 			->offset($request->offset)
 			->latest()
@@ -48,11 +71,22 @@ class ChatController extends Controller
 		$request->validate([
 			'text' => 'required',
 			'client_code' => 'required',
+			'chamber' => 'required'
 		]);
 
 		$message = new Message($request->all());
 
-		$request->user()->messages()->save($message);
+		/** @var \App\Models\User $user */
+		$user = $request->user();
+		$chamberParticipant = $user->chamberParticipants()
+			->whereHas('chamber', function (Builder $query) use ($request) {
+				$query->where('code', $request->chamber);
+			})
+			->first();
+
+		$chamberParticipant->messages()->save($message);
+
+		$message->setRelation('chamberParticipant', $chamberParticipant);
 
 		MessageSent::dispatch($message);
 

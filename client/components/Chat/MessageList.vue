@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 
-import TheMessage from '~/components/Message.vue'
+import TheMessage from '~/components/Chat/Message.vue'
 import { timestampToDate } from '~/utils/date'
 import { useMessagesStore, type Message } from '~/store/messages'
 import { storeToRefs } from 'pinia'

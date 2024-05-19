@@ -1,68 +1,33 @@
-import type { Message } from '~/store/messages'
-import { useDeleteReq, useGetReq, usePostReq } from '~/composables/use-request'
-import { useUserStore } from '~/store/user'
+import { useGetReq, usePostReq } from '~/composables/use-request'
+import { useUserStore, type ChamberParticipant } from '~/store/user'
 import { randomString } from '~/utils/helpers'
 
-export const fetchMessages = async (limit: number, offset: number = 0) => {
-	const user = await useUserStore().getUser()
-
-	return useGetReq<Message[]>('/messages', {
-		query: { limit, offset }
-	}).sign(user)
+export interface Message {
+	id: number
+	chamber_participant: ChamberParticipant
+	client_code: string
+	text: string
+	my_reaction: string | null
+	reactions: { [key: string]: number }
+	created_at: number
 }
 
-export const messagesBatcher = (startOffset: number) => {
-	let offset = startOffset
+export const fetchMessages = async (chamber: string, limit: number, offset: number = 0) => {
+	const user = useUserStore().user
 
-	const next = async (limit: number) => {
-		const _offset = offset
-		offset += limit
-
-		return (await fetchMessages(limit, _offset)).send()
-			.catch(e => {
-				offset -= limit
-
-				throw e
-			})
-	}
-
-	const firstBatch = async (limit: number) => {
-		offset = startOffset + limit
-
-		return (await fetchMessages(limit, startOffset)).asAsyncData('messages', { server: false }).send()
-			.catch(e => {
-				offset -= limit
-
-				throw e
-			})
-	}
-
-	return { next, firstBatch }
+	return useGetReq<Message[]>('/messages', { query: { limit, offset, chamber } })
+		.sign(user)
+		.send()
 }
 
-export const sendMessage = (text: string) => {
+export const sendMessage = (chamber: string, text: string) => {
 	const user = useUserStore().user
 	const clientCode = randomString(5)
 
 	return {
 		clientCode,
-		request: usePostReq<Message>('/messages', { text, client_code: clientCode })
+		request: usePostReq<Message>('/messages', { text, chamber, client_code: clientCode })
 			.sign(user)
 			.send()
 	}
-}
-
-export const saveReaction = ({ id }: Message, reaction: string) => {
-	const user = useUserStore().user
-
-	return usePostReq('/reactions', {
-		message_id: id,
-		reaction_name: reaction
-	}).sign(user).send()
-}
-
-export const deleteReaction = ({ id }: Message) => {
-	const user = useUserStore().user
-
-	return useDeleteReq('/reactions', { query: { message_id: id } }).sign(user).send()
 }

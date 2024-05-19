@@ -1,5 +1,5 @@
 <template>
-	<div class="min-h-full flex flex-col justify-end">
+	<div class="flex flex-col justify-end">
 		<div ref="messageList">
 			<MessageList />
 		</div>
@@ -12,14 +12,16 @@
 			</div>
 		</transition>
 
+		<div class="text-center text-gray-600 mb-20" v-if="!messagesStore.messages.length">Сообщений еще нет</div>
+
 		<WritingStatus />
 	</div>
 </template>
 
 <script setup lang="ts">
 
-import MessageList from '~/components/MessageList.vue'
-import WritingStatus from '~/components/WritingStatus.vue'
+import MessageList from '~/components/Chat/MessageList.vue'
+import WritingStatus from '~/components/Chat/WritingStatus.vue'
 import TheClickable from '~/components/Clickable.vue'
 import { onMounted, ref, watch } from 'vue'
 import { useMessagesStore } from '~/store/messages'

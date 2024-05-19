@@ -24,14 +24,14 @@ class User extends Authenticatable
 		'created_at' => 'timestamp',
 	];
 
-	public function messages(): HasMany
-	{
-		return $this->hasMany(Message::class, 'user_id');
-	}
-
 	public function reactions(): HasMany
 	{
 		return $this->hasMany(Reaction::class, 'user_id');
+	}
+
+	public function chamberParticipants(): HasMany
+	{
+		return $this->hasMany(ChamberParticipant::class, 'user_id');
 	}
 
 	protected static function booted()

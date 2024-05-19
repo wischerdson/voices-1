@@ -21,7 +21,7 @@ class Guard implements AuthGuard
 
 	public function user(): ?Authenticatable
 	{
-		if ($this->user) {
+		if ($this->hasUser()) {
 			return $this->user;
 		}
 
