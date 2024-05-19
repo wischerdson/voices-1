@@ -2,12 +2,7 @@
 	<div>
 		<div class="w-full max-w-3xl mx-auto px-4 relative">
 			<div class="min-h-screen pt-14 pb-20 flex flex-col justify-end">
-				<div class="justify-self-end pb-10" v-if="true">
-					<span class="text-gray-500">Загрузка...</span>
-				</div>
-				<ClientOnly>
-					<MessagesSpace />
-				</ClientOnly>
+				<MessagesSpace />
 			</div>
 		</div>
 		<div class="fixed inset-x-0 bottom-0 z-30">
@@ -18,11 +13,28 @@
 
 <script setup lang="ts">
 
+import { useSoundsStore } from '~/store/sounds'
+import { useChatStore } from '~/store/chat'
+import { useUserStore } from '~/store/user'
+import { useHead, useRoute } from '#imports'
 import WritingArea from '~/components/Chat/WritingArea.vue'
 import MessagesSpace from '~/components/Chat/MessagesSpace.vue'
 
-if (process.client) {
+useHead({ title: 'Чат - Void\'s voices' })
 
+const userStore = useUserStore()
+useChatStore().setChamber(useRoute().params.chamber as string)
+
+const initSounds = () => {
+	const soundsStore = useSoundsStore()
+
+	soundsStore.defineSound('message-sent', '/sounds/message-sent.wav').volume = .5
+	soundsStore.defineSound('message-recieved', '/sounds/message-recieved.wav').volume = .5
+}
+
+if (process.client) {
+	initSounds()
+	userStore.defineUser()
 }
 
 // import { useMessagesStore } from '~/store/messages'
@@ -30,20 +42,20 @@ if (process.client) {
 // import { storeToRefs } from 'pinia'
 
 //
-// import { useChatStore } from '~/store/chat'
+//
 // import { useAfkDetection } from '~/composables/use-afk-detection'
-// import { useUserStore } from '~/store/user'
-// import { useSoundsStore } from '~/store/sounds'
+//
 
-// useHead({ title: 'Чат - Void\'s voices' })
 
-// useChatStore().setChamber(useRoute().params.chamber as string)
+//
+
+//
 
 // const messagesStore = useMessagesStore()
 // const { pending: messagesPending } = storeToRefs(messagesStore)
 
 // const userStore = useUserStore()
-// const soundsStore = useSoundsStore()
+//
 
 // if (process.client) {
 // 	const user = await userStore.getUser()
@@ -57,8 +69,8 @@ if (process.client) {
 // }
 
 // onMounted(() => {
-// 	soundsStore.defineSound('message-sent', '/sounds/message-sent.wav').volume = .5
-// 	soundsStore.defineSound('message-recieved', '/sounds/message-recieved.wav').volume = .5
+//
+//
 
 // 	messagesStore.fetch()
 // })

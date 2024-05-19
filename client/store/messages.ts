@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useChatStore } from './chat'
-import { fetchMessages, sendMessage } from '~/repositories/messages'
+import { fetchMessages, sendMessage, type Message } from '~/repositories/messages'
 import { computed, ref } from 'vue'
 import { useBatcher } from '#imports'
 
@@ -12,10 +12,13 @@ export const useMessagesStore = defineStore('messages', () => {
 
 	const pending = ref(false)
 	const pendingGetter = computed(() => pending.value)
+	let thatsAll = false
 
 	const batcher = useBatcher(
 		(limit, offset) => fetchMessages(chamber.value, limit, offset), BATCH_SIZE
 	)
+
+	const serverMessages = ref<Message[]>([])
 
 	const send = (text: string) => {
 		const { clientCode, request } = sendMessage(chamber.value, text)
@@ -23,13 +26,25 @@ export const useMessagesStore = defineStore('messages', () => {
 		return request
 	}
 
-	const fetch = batcher.startOver
+	const load = async () => {
+		if (thatsAll) {
+			return
+		}
 
-	const loadMore = batcher.next
+		pending.value = true
+
+		const messages = await batcher.next()
+			.finally(() => pending.value = false)
+
+		if (messages !== undefined) {
+			thatsAll = messages.length < BATCH_SIZE
+			serverMessages.value = serverMessages.value.concat(messages)
+		}
+	}
 
 	return {
-		pending: pendingGetter,
-		send, fetch, loadMore,
+		pending: pendingGetter, serverMessages,
+		send, load,
 	}
 })
 

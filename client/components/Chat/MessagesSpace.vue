@@ -1,69 +1,93 @@
 <template>
 	<div class="flex flex-col justify-end">
-		<div ref="messageList">
-			<MessageList />
-		</div>
-
-		<transition>
+		<!-- <transition>
 			<div class="to-down-btn fixed bottom-20 z-10 inset-x-0 max-w-3xl mx-auto px-4 pointer-events-none flex justify-end pr-6 pb-6" v-if="infiniteZoneStore.scrollBottom > 200">
 				<TheClickable class="w-7 h-7 bg-gray-300 text-black rounded-full flex items-center justify-center pointer-events-auto" @click="infiniteZoneStore.scrollDown(true)">
 					<icon name="material-symbols:arrow-downward-rounded" />
 				</TheClickable>
 			</div>
-		</transition>
+		</transition> -->
+
+		<div class="justify-self-end pb-10" v-if="pending">
+			<span class="text-gray-500">Загрузка...</span>
+		</div>
+
+		<pre v-else>{{ messagesStore.serverMessages }}</pre>
+
+		<!-- <ClientOnly v-else>
+			<div ref="messageList">
+				<MessageList />
+			</div>
+		</ClientOnly> -->
+
+		<!--
+
+
+
+
 
 		<div class="text-center text-gray-600 mb-20" v-if="!messagesStore.messages.length">Сообщений еще нет</div>
 
-		<WritingStatus />
+		<WritingStatus /> -->
 	</div>
 </template>
 
 <script setup lang="ts">
 
-import MessageList from '~/components/Chat/MessageList.vue'
-import WritingStatus from '~/components/Chat/WritingStatus.vue'
-import TheClickable from '~/components/Clickable.vue'
-import { onMounted, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useMessagesStore } from '~/store/messages'
-import { useInfiniteZoneStore } from '~/store/infinite-zone'
 
-const TRIGGER_MARGIN = 1000
 const messagesStore = useMessagesStore()
-const infiniteZoneStore = useInfiniteZoneStore()
-const messageList = ref<HTMLElement>()
+const pending = computed(() => process.server || messagesStore.pending)
 
-let observer: MutationObserver
-let isMoreLoaderLocked = false
+if (process.client) {
+	messagesStore.load()
+}
 
-watch(() => infiniteZoneStore.scrollTop, scrollTop => {
-	if (scrollTop > TRIGGER_MARGIN || isMoreLoaderLocked) {
-		return
-	}
+// import MessageList from '~/components/Chat/MessageList.vue'
+// import WritingStatus from '~/components/Chat/WritingStatus.vue'
+// import TheClickable from '~/components/Clickable.vue'
+// import { onMounted, ref, watch } from 'vue'
+// import { useMessagesStore } from '~/store/messages'
+// import { useInfiniteZoneStore } from '~/store/infinite-zone'
 
-	const $track = infiniteZoneStore.$track as HTMLElement
+// const TRIGGER_MARGIN = 1000
+// const messagesStore = useMessagesStore()
+// const infiniteZoneStore = useInfiniteZoneStore()
+// const messageList = ref<HTMLElement>()
 
-	isMoreLoaderLocked = true
+// let observer: MutationObserver
+// let isMoreLoaderLocked = false
 
-	let scrollTopBefore: number, scrollHeightBefore: number
+// watch(() => infiniteZoneStore.scrollTop, scrollTop => {
+// 	if (scrollTop > TRIGGER_MARGIN || isMoreLoaderLocked) {
+// 		return
+// 	}
 
-	messagesStore.loadMore(() => {
-		scrollTopBefore = $track.scrollTop
-		scrollHeightBefore = $track.scrollHeight
-	}, () => {
-		infiniteZoneStore.scrollTo(scrollTopBefore + $track.scrollHeight - scrollHeightBefore, false)
-		setTimeout(() => isMoreLoaderLocked = false, 1000)
-	})
-})
+// 	const $track = infiniteZoneStore.$track as HTMLElement
 
-onMounted(() => {
-	infiniteZoneStore.bindTrackElement(window.document.documentElement)
-	infiniteZoneStore.scrollDown()
+// 	isMoreLoaderLocked = true
 
-	window.document.addEventListener('scroll', infiniteZoneStore.scrollListener)
+// 	let scrollTopBefore: number, scrollHeightBefore: number
 
-	observer = new MutationObserver(() => infiniteZoneStore.arrivedBottom && infiniteZoneStore.scrollDown(true))
-	observer.observe(messageList.value as HTMLElement, { childList: true })
-})
+// 	messagesStore.loadMore(() => {
+// 		scrollTopBefore = $track.scrollTop
+// 		scrollHeightBefore = $track.scrollHeight
+// 	}, () => {
+// 		infiniteZoneStore.scrollTo(scrollTopBefore + $track.scrollHeight - scrollHeightBefore, false)
+// 		setTimeout(() => isMoreLoaderLocked = false, 1000)
+// 	})
+// })
+
+// onMounted(() => {
+// 	infiniteZoneStore.bindTrackElement(window.document.documentElement)
+// 	infiniteZoneStore.scrollDown()
+
+// 	window.document.addEventListener('scroll', infiniteZoneStore.scrollListener)
+
+// 	observer = new MutationObserver(() => infiniteZoneStore.arrivedBottom && infiniteZoneStore.scrollDown(true))
+// 	observer.observe(messageList.value as HTMLElement, { childList: true })
+// })
 
 </script>
 

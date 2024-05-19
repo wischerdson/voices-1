@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { fetchUser } from '~/repositories/user'
+import { useChatStore } from './chat'
 
 export type ChamberParticipant = {
 	id: number
@@ -20,13 +21,31 @@ export const useUserStore = defineStore('user', () => {
 	const user = ref<User>()
 	const userGetter = computed(() => user.value)
 
-	const defineUser = async (chamberCode: string) => {
+	const chatStore = useChatStore()
+	const chamber = chatStore.chamber
+
+	const getUser = () => {
+		return new Promise<User>(resolve => {
+			if (user.value) {
+				return resolve(user.value)
+			}
+
+			const stopHandler = watch(user, u => {
+				if (u !== undefined) {
+					stopHandler()
+					resolve(u)
+				}
+			}, { immediate: true })
+		})
+	}
+
+	const defineUser = async () => {
 		if (user.value) {
 			return
 		}
 
-		user.value = await fetchUser(chamberCode)
+		user.value = await fetchUser(chamber.value)
 	}
 
-	return { user: userGetter, defineUser }
+	return { user: userGetter, getUser, defineUser }
 })

@@ -13,7 +13,7 @@ export interface Message {
 }
 
 export const fetchMessages = async (chamber: string, limit: number, offset: number = 0) => {
-	const user = useUserStore().user
+	const user = await useUserStore().getUser()
 
 	return useGetReq<Message[]>('/messages', { query: { limit, offset, chamber } })
 		.sign(user)
