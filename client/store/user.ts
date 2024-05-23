@@ -17,11 +17,11 @@ export type User = {
 	chamber_participant: ChamberParticipant
 }
 
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore('user', async () => {
 	const user = ref<User>()
 	const userGetter = computed(() => user.value)
 
-	const chatStore = useChatStore()
+	const chatStore = await useChatStore()
 	const chamber = chatStore.chamber
 
 	const getUser = () => {

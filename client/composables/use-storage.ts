@@ -1,29 +1,33 @@
 import type { CookieOptions } from 'nuxt/app'
 import type { WatchOptions } from 'vue'
+import type { DefinedStorage } from '~/utils/storages'
 import { defineStorage, cookieStorageDriver, localStorageDriver, dummyStorageDriver } from '~/utils/storages'
 
 type _CookieOptions = CookieOptions & { readonly?: false | undefined; }
-type Storage<T> = ReturnType<typeof defineStorage<T>>
 
-export function useCookieStorage<T>(key: string, init: () => T, cookieOptions?: _CookieOptions, watchOptions?: WatchOptions): Storage<T>
-export function useCookieStorage<T>(key: string, init?: () => T, cookieOptions?: _CookieOptions, watchOptions?: WatchOptions): Storage<T | null>
+/****************** Cookie storage ******************/
+
+export function useCookieStorage<T>(key: string, init: () => T, cookieOptions?: _CookieOptions, watchOptions?: WatchOptions): DefinedStorage<T>
+export function useCookieStorage<T>(key: string, init?: () => T, cookieOptions?: _CookieOptions, watchOptions?: WatchOptions): DefinedStorage<T | null>
+
 export function useCookieStorage<T>(
 	key: string,
 	init?: () => T,
-	cookieOptions: _CookieOptions = {},
-	watchOptions: WatchOptions = {}
+	cookieOptions: _CookieOptions = {}
 ) {
-	return defineStorage(key, cookieStorageDriver(init, cookieOptions), watchOptions)
+	return defineStorage(key, cookieStorageDriver(init, cookieOptions))
 }
 
-export function useLocalStorage<T>(key: string, init: () => T, watchOptions?: WatchOptions): Storage<T>
-export function useLocalStorage<T>(key: string, init?: () => T, watchOptions?: WatchOptions): Storage<T | null>
+/****************** Localstorage ******************/
+
+export function useLocalStorage<T>(key: string, init: () => T, watchOptions?: WatchOptions): DefinedStorage<T>
+export function useLocalStorage<T>(key: string, init?: () => T, watchOptions?: WatchOptions): DefinedStorage<T | null>
+
 export function useLocalStorage<T>(
 	key: string,
-	init?: () => T,
-	watchOptions: WatchOptions = {}
+	init?: () => T
 ) {
 	const driver = process.server ? dummyStorageDriver(init) : localStorageDriver(init)
 
-	return defineStorage(key, driver, watchOptions)
+	return defineStorage(key, driver)
 }

@@ -1,7 +1,6 @@
 import type { CookieOptions } from 'nuxt/app'
-import type { WatchOptions } from 'vue'
-import { watch } from 'vue'
-import { defaultsDeep, isObject, snakeCase } from 'lodash-es'
+import type { Ref } from 'vue'
+import { defaultsDeep, snakeCase } from 'lodash-es'
 import { useCookie, useState } from 'nuxt/app'
 import { singletonClientOnly } from './singleton'
 
@@ -10,6 +9,8 @@ export interface StorageDriver<T> {
 	read(key: string): T
 	write(key: string, value: T): void
 }
+
+export type DefinedStorage<T> = [state: Ref<T>, write: () => void]
 
 const stringify = (data: unknown): string => typeof data === 'object' ? JSON.stringify(data) : `${data}`
 
@@ -81,22 +82,15 @@ export function dummyStorageDriver<T>(init?: () => T): StorageDriver<T | null> {
 	}
 }
 
-export const defineStorage = <T>(key: string, driver: StorageDriver<T>, watchOptions: WatchOptions = {}) => {
+export const defineStorage = <T>(key: string, driver: StorageDriver<T>): DefinedStorage<T> => {
 	const stateKey = snakeCase(`${driver.uid}_${key}`)
 
 	return singletonClientOnly(stateKey, () => {
 		const storageKey = snakeCase(`app_${key}`)
-
 		const state = useState<T>(stateKey, () => driver.read(storageKey))
 
-		if (isObject(state.value) && !('deep' in watchOptions)) {
-			watchOptions.deep = true
-		}
+		const write = () => driver.write(storageKey, state.value)
 
-		const write = (value: T) => driver.write(storageKey, value)
-
-		watch(state, write, watchOptions)
-
-		return { state, write }
+		return [ state, write ]
 	})
 }

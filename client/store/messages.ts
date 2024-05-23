@@ -2,12 +2,45 @@ import { defineStore } from 'pinia'
 import { useChatStore } from './chat'
 import { fetchMessages, sendMessage, type Message } from '~/repositories/messages'
 import { computed, ref } from 'vue'
-import { useBatcher } from '#imports'
+import { useBatcher, useLocalStorage } from '#imports'
+import type { ChamberParticipant } from './user'
 
-export const useMessagesStore = defineStore('messages', () => {
+export interface ClientMessage extends Omit<Message, 'id'> {
+	status: 'pending' | 'sent' | 'error'
+}
+
+const defineClientMessages = async() => {
+	const [ clientMessages, writeClientMessages ] = useLocalStorage<ClientMessage[]>('client-messages', () => [])
+
+	for (let idx in clientMessages.value) {
+		const message = clientMessages.value[idx]
+
+		if (message.status === 'sent') {
+			delete clientMessages.value[idx]
+		}
+
+		if (message.status === 'pending') {
+			message.status = 'error'
+
+			clientMessages.value[idx] = message
+		}
+	}
+
+	const add = (text: string, chamber: ChamberParticipant) => {
+
+	}
+
+	writeClientMessages()
+
+	return {
+		clientMessages
+	}
+}
+
+export const useMessagesStore = defineStore('messages', async () => {
 	const BATCH_SIZE = 70
 
-	const chatStore = useChatStore()
+	const chatStore = await useChatStore()
 	const chamber = chatStore.chamber
 
 	const pending = ref(false)
@@ -19,9 +52,23 @@ export const useMessagesStore = defineStore('messages', () => {
 	)
 
 	const serverMessages = ref<Message[]>([])
+	// const { clientMessages, add } = defineClientMessages()
+
+
+
 
 	const send = (text: string) => {
 		const { clientCode, request } = sendMessage(chamber.value, text)
+
+		// clientMessages.value.push({
+		// 	chamber_participant: chatStore.chamberParticipant,
+		// 	client_code: clientCode,
+		// 	text,
+		// 	created_at: Math.floor((new Date()).getTime() / 1000),
+		// 	reactions: {},
+		// 	my_reaction: null,
+		// 	status: 'pending'
+		// })
 
 		return request
 	}
@@ -43,7 +90,7 @@ export const useMessagesStore = defineStore('messages', () => {
 	}
 
 	return {
-		pending: pendingGetter, serverMessages,
+		loadPending: pendingGetter, serverMessages,
 		send, load,
 	}
 })

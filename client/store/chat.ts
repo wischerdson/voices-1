@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
+import { useUserStore } from './user'
 
 export const useScrollableTrackStore = defineStore('scrollable-track', () => {
 	const onReadyCallbacks: (($track: HTMLElement) => void)[] = []
@@ -54,11 +55,12 @@ export const useScrollableTrackStore = defineStore('scrollable-track', () => {
 	}
 })
 
-export const useChatStore = defineStore('chat', () => {
+export const useChatStore = defineStore('chat', async () => {
 	const chamber = ref<string>('')
+	const { chamber_participant: chamberParticipant } = await useUserStore().getUser()
 
 	const setChamber = (c: string) => chamber.value = c
-	const chamberGetter = computed(() => chamber)
+	const chamberGetter = computed(() => chamber.value)
 
-	return { setChamber, chamber: chamberGetter }
+	return { setChamber, chamber: chamberGetter, chamberParticipant }
 })
