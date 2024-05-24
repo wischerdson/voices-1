@@ -4,14 +4,14 @@
 			<div class="bg-gray-300 text-black text-xs px-4 py-1.5 inline-block rounded-full">{{ timestampToDate(timestamp) }}</div>
 		</div>
 		<div class="space-y-6">
-			<TheMessage :message="message" v-for="message in messages" :key="`message-${message.id}`" />
+			<TextMessage :message="message" v-for="message in messages" :key="`message-${message.id}`" />
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 
-import TheMessage from '~/components/Message.vue'
+import TextMessage from '~/components/Chat/Messages/TextMessage.vue'
 import { timestampToDate } from '~/utils/date'
 import { useMessagesStore, type Message } from '~/store/messages'
 import { storeToRefs } from 'pinia'

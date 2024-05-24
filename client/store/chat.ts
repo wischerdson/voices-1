@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-export const useInfiniteZoneStore = defineStore('infinite-zone', () => {
+export const useScrollableTrackStore = defineStore('scrollable-track', () => {
 	const onReadyCallbacks: (($track: HTMLElement) => void)[] = []
 	const $track = ref<HTMLElement>()
 	const scrollTop = ref(0)
@@ -52,4 +52,13 @@ export const useInfiniteZoneStore = defineStore('infinite-zone', () => {
 		$track, scrollTop, scrollBottom, arrivedTop, arrivedBottom,
 		scrollTo, scrollDown, bindTrackElement, onReady, scrollListener,
 	}
+})
+
+export const useChatStore = defineStore('chat', () => {
+	const chamber = ref<string>('')
+
+	const setChamber = (c: string) => chamber.value = c
+	const chamberGetter = computed(() => chamber)
+
+	return { setChamber, chamber: chamberGetter }
 })

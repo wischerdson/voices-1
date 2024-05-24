@@ -1,9 +1,11 @@
 import { useNuxtApp } from '#app'
 import { defineStore, storeToRefs } from 'pinia'
-import { ref, nextTick } from 'vue'
-import { deleteReaction, messagesBatcher, saveReaction, sendMessage } from '~/repositories/messages'
+import { ref } from 'vue'
+import { deleteReaction, fetchMessages, saveReaction, sendMessage } from '~/repositories/messages'
 import { useUserStore, type User } from './user'
 import { isEmpty } from 'lodash-es'
+import { useBatcher } from '~/composables/use-batcher'
+import { useSoundsStore } from './sounds'
 
 export type Message = {
 	id?: number
@@ -21,15 +23,15 @@ export type MessageReactionsChangedData = {
 }
 
 export const useMessagesStore = defineStore('messages', () => {
-	const LIMIT = 70
+	const BATCH_SIZE = 70
 	const messages = ref<Message[]>([])
-	const pagination = messagesBatcher(0)
 	const thatsAll = ref(false)
 	const { $echo } = useNuxtApp()
 	const { user } = storeToRefs(useUserStore())
 	const pending = ref(true)
-	let messageSentSound: HTMLAudioElement
-	let messageRecievedSound: HTMLAudioElement
+	const soundsStore = useSoundsStore()
+
+	const batcher = useBatcher(fetchMessages, BATCH_SIZE)
 
 	process.client && $echo
 		.channel('messages')
@@ -43,7 +45,7 @@ export const useMessagesStore = defineStore('messages', () => {
 				messages.value.unshift(message)
 
 				if (message.user_id !== user.value?.id) {
-					messageRecievedSound.play()
+					soundsStore.playSound('message-recieved')
 				}
 			}
 		})
@@ -58,26 +60,20 @@ export const useMessagesStore = defineStore('messages', () => {
 			}
 		})
 
-	const loadMore = async (beforeStateUpdating: () => void, afterStateUpdating: () => void) => {
+	const load = async () => {
 		if (thatsAll.value) {
 			return
 		}
 
-		const data = await pagination.next(LIMIT)
+		pending.value = true
 
-		beforeStateUpdating()
-		data.forEach(m => messages.value.push(m))
+		const _messages = await batcher.next()
+			.finally(() => pending.value = false)
 
-		nextTick(afterStateUpdating)
-
-		thatsAll.value = data.length < LIMIT
-	}
-
-	const fetch = async () => {
-		const { data } = await pagination.firstBatch(20)
-
-		messages.value = data.value || []
-		pending.value = false
+		if (_messages !== undefined) {
+			thatsAll.value = _messages.length < BATCH_SIZE
+			messages.value = messages.value.concat(_messages)
+		}
 	}
 
 	const send = (text: string) => {
@@ -97,7 +93,7 @@ export const useMessagesStore = defineStore('messages', () => {
 				return !('id' in m) && (m.client_code === message.client_code)
 			})
 
-			messageSentSound.play()
+			soundsStore.playSound('message-sent')
 
 			return messages.value[idx] = message
 		})
@@ -151,20 +147,9 @@ export const useMessagesStore = defineStore('messages', () => {
 		return deleteReaction(message)
 	}
 
-	const initMessageRecievedSound = (sound: HTMLAudioElement) => {
-		sound.volume = .5
-		messageRecievedSound = sound
-	}
-
-	const initMessageSentSound = (sound: HTMLAudioElement) => {
-		sound.volume = .5
-		messageSentSound = sound
-	}
-
 	return {
 		messages, thatsAll, pending,
-		fetch, loadMore, send, isMessageMine,
-		saveReaction: _saveReaction, deleteReaction: _deleteReaction,
-		initMessageRecievedSound, initMessageSentSound
+		fetch, load, send, isMessageMine,
+		saveReaction: _saveReaction, deleteReaction: _deleteReaction
 	}
 })

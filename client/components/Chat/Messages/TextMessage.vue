@@ -18,7 +18,7 @@ import type { Message } from '~/store/messages'
 import { useMessagesStore } from '~/store/messages'
 import { timestampToTime } from '~/utils/date'
 import { computed, ref } from 'vue'
-import MessageReactions from '~/components/MessageReactions.vue'
+import MessageReactions from '~/components/Chat/MessageReactions.vue'
 
 const props = defineProps<{ message: Message }>()
 

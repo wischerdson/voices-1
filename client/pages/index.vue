@@ -2,12 +2,8 @@
 	<div>
 		<div class="w-full max-w-3xl mx-auto px-4 relative">
 			<div class="min-h-screen pt-14 pb-20 flex flex-col justify-end">
-				<div class="justify-self-end pb-10" v-if="messagesPending">
-					<span class="text-gray-500">Загрузка...</span>
-				</div>
-				<MessagesSpace v-else />
+				<MessagesSpace />
 			</div>
-
 		</div>
 		<div class="fixed inset-x-0 bottom-0 z-30">
 			<WritingArea />
@@ -17,23 +13,23 @@
 
 <script setup lang="ts">
 
-import { useMessagesStore } from '~/store/messages'
-import { onMounted, useHead } from '#imports'
-import { storeToRefs } from 'pinia'
-import WritingArea from '~/components/WritingArea.vue'
-import MessagesSpace from '~/components/MessagesSpace.vue'
+import { useHead } from '#imports'
+import WritingArea from '~/components/Chat/WritingArea.vue'
+import MessagesSpace from '~/components/Chat/MessagesSpace.vue'
+import { useSoundsStore } from '~/store/sounds'
 
 useHead({ title: 'Чат - Void\'s voices' })
 
-const messagesStore = useMessagesStore()
+const initSounds = () => {
+	const soundsStore = useSoundsStore()
 
-const { pending: messagesPending } = storeToRefs(messagesStore)
+	soundsStore.defineSound('message-sent', '/sounds/message-sent.wav').volume = .4
+	soundsStore.defineSound('message-recieved', '/sounds/message-recieved.wav').volume = .4
+}
 
-onMounted(() => {
-	messagesStore.fetch()
-	messagesStore.initMessageSentSound(new Audio('/sounds/message-sent.wav'))
-	messagesStore.initMessageRecievedSound(new Audio('/sounds/message-recieved.wav'))
-})
+if (process.client) {
+	initSounds()
+}
 
 </script>
 
